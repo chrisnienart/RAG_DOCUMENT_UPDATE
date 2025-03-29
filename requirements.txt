@@ -1,21 +1,9 @@
-# Core
 streamlit
 pandas
 python-dotenv
-
-# Visualization
 matplotlib
-
-# LangChain ecosystem
+openai
 langchain
 langchain-community
-
-# Embedding + LLMs
-openai
 faiss-cpu
-
-# Optional (but may help with parsing PDFs or file handling)
 PyMuPDF
-
-# Regex handling and error tracing (Python built-in, included for completeness)
-traceback
