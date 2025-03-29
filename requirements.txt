@@ -18,5 +18,4 @@ faiss-cpu
 PyMuPDF
 
 # Regex handling and error tracing (Python built-in, included for completeness)
-re
 traceback
