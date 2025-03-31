@@ -8,3 +8,4 @@ langchain-community
 faiss-cpu
 PyMuPDF
 tabulate
+tiktoken
