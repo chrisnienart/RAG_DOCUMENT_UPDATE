@@ -47,6 +47,7 @@ if df is not None:
         st.stop()
 
     try:
+        # Preloaded vector store
         embeddings = OpenAIEmbeddings(model=embedding_model, openai_api_key=openai_api_key)
         vectorstore = FAISS.load_local("vector_store", embeddings, allow_dangerous_deserialization=True)
 
