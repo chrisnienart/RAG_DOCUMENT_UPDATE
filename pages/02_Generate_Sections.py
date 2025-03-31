@@ -10,6 +10,7 @@ from langchain.prompts import PromptTemplate
 import traceback
 import matplotlib.pyplot as plt
 import re
+import tabulate  # <-- Added for pandas to_markdown support
 
 # Load environment
 load_dotenv()
