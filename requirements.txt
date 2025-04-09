@@ -1,0 +1,11 @@
+streamlit
+pandas
+python-dotenv
+matplotlib
+openai
+langchain
+langchain-community
+faiss-cpu
+PyMuPDF
+tabulate
+tiktoken
