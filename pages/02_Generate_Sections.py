@@ -107,7 +107,7 @@ Here is the dataset sample:
 
                     st.markdown(pre_fig)
                     try:
-                        fig_df = pd.read_csv("FIG_3_1.csv")
+                        fig_df = pd.read_csv("data/FIG_3_1.csv")
                         fig, ax = plt.subplots()
                         ax.plot(fig_df["Year"], fig_df["Rate"], marker="o")
                         ax.set_xlabel("Year")
