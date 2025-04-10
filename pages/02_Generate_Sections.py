@@ -11,10 +11,13 @@ import traceback
 import matplotlib.pyplot as plt
 import re
 import tabulate  # <-- Added for pandas to_markdown support
+import google.generativeai as genai
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Load environment
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
+google_api_key = os.getenv("GOOGLE_API_KEY")
 
 # Page config
 st.set_page_config(page_title="Generate Section 3.1 - RPEC", layout="wide")
@@ -37,7 +40,7 @@ if uploaded_file:
 if df is not None:
     st.markdown("### 🧩 Model Configuration")
     k = st.slider("🔍 Top K Chunks to Retrieve", 5, 50, 20)
-    model_name = st.selectbox("🧠 LLM Model", ["gpt-4-turbo", "gpt-3.5-turbo"])
+    model_choice = st.selectbox("🧠 LLM Model", ["gpt-4-turbo", "gpt-3.5-turbo", "gemini-1.5-pro"])
     temperature = st.slider("🌡️ Temperature (Creativity)", 0.0, 1.0, 0.2)
 
     try:
@@ -54,23 +57,40 @@ if df is not None:
 
         retriever = vectorstore.as_retriever(search_kwargs={"k": k})
 
-        prompt_template = PromptTemplate(
-            input_variables=["context", "question"],
-            template=(
-                "You are a mortality analyst preparing the SOA RPEC 2024 Report. "
-                "Use the provided context and dataset to generate a response in the same style and structure "
-                "as Section 3 of the 2023 RPEC Report. Focus only on updated data from the uploaded dataset.\n\n"
-                "Use the markdown format from the 2023 report to format tables and figures. If 'Figure X.X' is referenced, "
-                "generate a chart using the dataset and render it inline below that reference. Graphs should appear immediately below reference.\n\n"
-                "Context:\n{context}\n\nQuestion:\n{question}"
+        if model_choice.startswith("gpt"):
+            llm = ChatOpenAI(
+                model_name=model_choice,
+                temperature=temperature,
+                openai_api_key=openai_api_key
             )
-        )
-
-        llm = ChatOpenAI(
-            model_name=model_name,
-            temperature=temperature,
-            openai_api_key=openai_api_key
-        )
+            prompt_template = PromptTemplate(
+                input_variables=["context", "question"],
+                template=(
+                    "You are a mortality analyst preparing the SOA RPEC 2024 Report. "
+                    "Use the provided context and dataset to generate a response in the same style and structure "
+                    "as Section 3 of the 2023 RPEC Report. Focus only on updated data from the uploaded dataset.\n\n"
+                    "Use the markdown format from the 2023 report to format tables and figures. If 'Figure X.X' is referenced, "
+                    "generate a chart using the dataset and render it inline below that reference. Graphs should appear immediately below reference.\n\n"
+                    "Context:\n{context}\n\nQuestion:\n{question}"
+                )
+            )
+        else:
+            llm = ChatGoogleGenerativeAI(
+                model=model_choice,
+                temperature=temperature,
+                google_api_key=google_api_key
+            )
+            prompt_template = PromptTemplate(
+                input_variables=["context", "question"],
+                template=(
+                    "You are a professional actuarial report writer. Based on the context from previous reports and a provided dataset, "
+                    "generate a fully written markdown document for Section 3.1 of the SOA RPEC 2024 Report. "
+                    "The tone should be formal, structured, and human-written. DO NOT include Python code or placeholders like '[Insert table]'. "
+                    "Instead, describe the data as if it were already in the report. "
+                    "Structure your response exactly like a completed report section.\n\n"
+                    "Context:\n{context}\n\nQuestion:\n{question}"
+                )
+            )
 
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
