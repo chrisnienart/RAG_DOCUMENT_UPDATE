@@ -2,10 +2,12 @@ streamlit
 pandas
 python-dotenv
 matplotlib
-openai
 langchain
 langchain-community
+openai
 faiss-cpu
 PyMuPDF
-tabulate
 tiktoken
+tabulate
+google-generativeai
+langchain-google-genai
