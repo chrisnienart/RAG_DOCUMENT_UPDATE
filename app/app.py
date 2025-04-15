@@ -1,5 +1,6 @@
 import streamlit as st
 
+# Must be the first Streamlit command
 st.set_page_config(
     page_title="RAG App Overview", 
     layout="wide",
