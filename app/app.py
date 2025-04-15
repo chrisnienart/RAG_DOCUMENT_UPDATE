@@ -2,7 +2,7 @@ import streamlit as st
 
 # Must be the first Streamlit command
 st.set_page_config(
-    page_title="RAG App Overview", 
+    page_title="📘 RPEC 2024 Mortality Dashboard",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items=None 
