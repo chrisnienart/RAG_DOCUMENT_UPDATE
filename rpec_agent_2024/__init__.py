@@ -1,9 +1,22 @@
 import streamlit as st
 
-st.set_page_config(page_title="RPEC RAG App Overview", layout="wide")
-st.title("📘 RPEC 2024 Mortality Dashboard")
+st.set_page_config(
+    page_title="RPEC RAG App Overview", 
+    layout="wide",
+    page_icon="📊",
+    initial_sidebar_state="expanded"
+)
 
-st.markdown("""
+st.sidebar.title("Navigation")
+page = st.sidebar.radio("Go to", [
+    "Overview",
+    "RAG Builder",
+    "Generate Section"
+])
+
+if page == "Overview":
+    st.title("📘 RPEC 2024 Mortality Dashboard")
+    st.markdown("""
 Welcome to the **RPEC 2024 Mortality Dashboard**, a dynamic tool powered by AI to help actuaries and analysts generate narrative sections of the SOA's Retirement Plans Experience Committee (RPEC) report.
 
 This application uses **RAG (Retrieval-Augmented Generation)** techniques with **LangChain** and **OpenAI** models to synthesize structured insights from:
