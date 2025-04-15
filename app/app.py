@@ -2,7 +2,8 @@ import streamlit as st
 
 # Must be the first Streamlit command
 st.set_page_config(
-    page_title="📘 RPEC 2024 Mortality Dashboard",
+    page_title="RPEC 2024 Mortality Dashboard",
+    page_icon="📘",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items=None 
