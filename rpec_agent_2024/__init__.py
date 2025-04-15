@@ -4,7 +4,8 @@ st.set_page_config(
     page_title="RPEC RAG App Overview", 
     layout="wide",
     page_icon="📊",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items=None
 )
 
 # Always open the overview page by default
