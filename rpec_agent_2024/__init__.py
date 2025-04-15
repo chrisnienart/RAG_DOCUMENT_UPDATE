@@ -63,3 +63,7 @@ Explore each page to experiment with hyperparameters and iterate on the narrativ
 
 > ⚠️ Tip: Make sure your vector store reflects your desired `chunk_size` and embedding model before generating a section.
 """)
+elif page == "RAG Builder":
+    st.switch_page("pages/01_Rag_Build.py")
+elif page == "Generate Section":
+    st.switch_page("pages/02_Generate_Sections.py")
