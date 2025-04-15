@@ -4,6 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["rpec_agent_2024"]
+package-dir = {"" = "."}
+include-package-data = true
+
+[project.scripts]
+rpec-agent = "rpec_agent_2024:main"
 
 [project]
 name = "rpec_agent_2024"
