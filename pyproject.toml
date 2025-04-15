@@ -23,7 +23,15 @@ dependencies = [
     "faiss-cpu",
     "PyMuPDF",
     "tabulate",
-    "tiktoken"
+    "tiktoken",
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "sentence-transformers",
+    "unstructured",
+    "pdf2image",
+    "pypdf",
+    "pytest"
 ]
 
 [project.optional-dependencies]
