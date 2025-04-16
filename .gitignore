@@ -1,10 +1,14 @@
-# files
+# build directories
+build/
+dist/
+egg-info/
+
+# private files
 .env
 .aider*
 
-# folders
+# temp folders
 .venv
-RPEC_app.egg-info/
 temp_docs/
 vector_store/
 __pycache__/
