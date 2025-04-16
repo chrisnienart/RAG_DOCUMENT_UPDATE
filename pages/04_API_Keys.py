@@ -19,9 +19,11 @@ st.markdown(
 if "openai_api_key" not in st.session_state:
     st.session_state.openai_api_key = os.getenv("OPENAI_API_KEY", "")
 
-# Initialize Google API key in session state
+# Initialize API keys in session state
 if "google_api_key" not in st.session_state:
     st.session_state.google_api_key = os.getenv("GOOGLE_API_KEY", "")
+if "openrouter_api_key" not in st.session_state:
+    st.session_state.openrouter_api_key = os.getenv("OPENROUTER_API_KEY", "")
 
 st.markdown("### API Key Configuration")
 
@@ -86,6 +88,15 @@ if submitted_openai:
         st.session_state.openai_api_key = ""
         st.error("❌ OpenAI key cleared")
 
+# Handle OpenRouter submissions
+if submitted_openrouter:
+    if new_openrouter_key:
+        st.session_state.openrouter_api_key = new_openrouter_key
+        st.success("✅ OpenRouter key updated!")
+    else:
+        st.session_state.openrouter_api_key = ""
+        st.error("❌ OpenRouter key cleared")
+
 # Handle Google submissions
 if submitted_google:
     if new_google_key:
@@ -97,7 +108,7 @@ if submitted_google:
 
 # Display current key status
 st.markdown("### Current Key Status")
-status_cols = st.columns(2)
+status_cols = st.columns(3)
 with status_cols[0]:
     if st.session_state.openai_api_key:
         st.info("🔐 OpenAI: Key set")
@@ -108,6 +119,11 @@ with status_cols[1]:
         st.info("🔐 Google: Key set")
     else:
         st.error("❌ Google: No key set")
+with status_cols[2]:
+    if st.session_state.openrouter_api_key:
+        st.info("🔐 OpenRouter: Key set")
+    else:
+        st.error("❌ OpenRouter: No key set")
 
 # Navigation button
 if st.session_state.openai_api_key or st.session_state.google_api_key:
