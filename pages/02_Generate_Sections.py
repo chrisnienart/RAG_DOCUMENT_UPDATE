@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import re
 import tabulate  # <-- Added for pandas to_markdown support
 
-# Load environment
+# Load environment and checks
 load_dotenv()
 openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
 if not openai_api_key:
@@ -20,30 +20,28 @@ if not openai_api_key:
     st.stop()
 
 # Page config
-st.set_page_config(page_title="Generate Section 3.1 - RPEC", layout="wide")
-st.title("🧐 Generate Section 3.1 for RPEC 2024")
-st.markdown("Use the uploaded dataset from the previous page to generate an updated Section 3.1.")
+st.set_page_config(page_title="Generate Section - RPEC", layout="wide")
+st.title("🚀 Generate Section 3.1")
+st.markdown("Generate the mortality analysis section using configured parameters")
+
+# Check for config
+required_keys = ['model_k', 'model_name', 'temperature', 'embedding_model']
+if any(key not in st.session_state for key in required_keys):
+    st.error("⚠️ Model not configured! Please set parameters first.")
+    st.stop()
+
+# Get configured values
+k = st.session_state['model_k']
+model_name = st.session_state['model_name']
+temperature = st.session_state['temperature']
+embedding_model = st.session_state['embedding_model']
 
 # Get data from session state
 if 'mortality_data' not in st.session_state:
-    st.error("⚠️ No dataset found! Please upload your data on the Upload Dataset page first.")
+    st.error("⚠️ No dataset found! Please upload your data first.")
     st.stop()
 
 df = st.session_state.mortality_data
-
-# Prompt for model and retrieval params (after upload)
-if df is not None:
-    st.markdown("### 🧩 Model Configuration")
-    k = st.slider("🔍 Top K Chunks to Retrieve", 5, 50, 20)
-    model_name = st.selectbox("🧠 LLM Model", ["gpt-4-turbo", "gpt-3.5-turbo"])
-    temperature = st.slider("🌡️ Temperature (Creativity)", 0.0, 1.0, 0.2)
-
-    try:
-        with open("vector_store/embedding_model.txt", "r") as f:
-            embedding_model = f.read().strip()
-    except Exception as e:
-        st.error("❌ Failed to load embedding model name.")
-        st.stop()
 
     try:
         # Preloaded vector store
