@@ -34,13 +34,30 @@ with st.form("openai_key_form"):
         new_openai_key = st.text_input(
             label=" ",
             type="password",
-            placeholder="sk-...",
+            placeholder="sk-proj-...",
             key="openai_input",
             label_visibility="collapsed"
         )
     with cols[2]:
         submitted_openai = st.form_submit_button("🔁 Update", use_container_width=True)
     cols[1].caption("Get key: [platform.openai.com](https://platform.openai.com/account/api-keys)")
+
+# Google Row
+with st.form("openrouter_key_form"):
+    cols = st.columns([3, 5, 2])
+    with cols[0]:
+        st.markdown("**OpenRouter API Key**  ")
+    with cols[1]:
+        new_openrouter_key = st.text_input(
+            label=" ",
+            type="password",
+            placeholder="sk-or-....",
+            key="openrouter_input",
+            label_visibility="collapsed"
+        )
+    with cols[2]:
+        submitted_openrouter = st.form_submit_button("🔁 Update", use_container_width=True)
+    cols[1].caption("Get key: [openrouter.ai](https://openrouter.ai/settings/keys)")
 
 # Google Row
 with st.form("google_key_form"):
@@ -58,6 +75,7 @@ with st.form("google_key_form"):
     with cols[2]:
         submitted_google = st.form_submit_button("🔁 Update", use_container_width=True)
     cols[1].caption("Get key: [console.cloud.google.com](https://console.cloud.google.com/apis/credentials)")
+
 
 # Handle OpenAI submissions
 if submitted_openai:
@@ -98,6 +116,5 @@ if st.session_state.openai_api_key or st.session_state.google_api_key:
         "pages/03_Rag_Build.py", 
         label="Continue to Vector Store Creation →", 
         icon="🛠️",
-        use_container_width=True,
-        type="primary"
+        use_container_width=True
     )
