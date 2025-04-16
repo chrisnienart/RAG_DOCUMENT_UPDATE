@@ -1,7 +1,10 @@
+# files
 .env
 .aider*
 .venv
 
+# folders
 __pycache__/
 venv/
 rpec_agent_2024.egg-info/
+temp_docs/
