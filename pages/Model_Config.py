@@ -32,7 +32,7 @@ if 'mortality_data' not in st.session_state:
 # Model parameters
 st.markdown("### 🧩 Model Settings")
 st.session_state['model_k'] = st.slider("🔍 Top K Chunks to Retrieve", 5, 50, 20)
-st.session_state['model_name'] = st.selectbox("🧠 LLM Model", ["gpt-4-turbo", "gpt-3.5-turbo"])
+st.session_state['model_name'] = st.selectbox("🧠 LLM Model", ["gpt-4-turbo", "gpt-3.5-turbo","gemini-1.5-pro"])
 st.session_state['temperature'] = st.slider("🌡️ Temperature (Creativity)", 0.0, 1.0, 0.2)
 
 # Navigation button
