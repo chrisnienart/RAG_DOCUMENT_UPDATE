@@ -38,8 +38,12 @@ source .venv/bin/activate  # Linux/MacOS
 uv pip install .[dev]
 ```
 
-The installation uses the modern `uv` installer which provides:
-- Faster dependency resolution
-- Improved installation speed
-- Full compatibility with pyproject.toml
-- Clean virtual environment management
+## Running the App
+
+To run the app, run the following command:
+
+```bash
+streamlit run app.py
+```
+
+This will start the app in your default browser.
