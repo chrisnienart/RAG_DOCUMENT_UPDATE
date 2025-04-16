@@ -20,8 +20,11 @@ st.title("🚀 Generate Section 3.1")
 # Load environment and checks
 load_dotenv()
 openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
-if not openai_api_key:
-    st.error("⚠️ No OpenAI API key found! Please set your API key in the API Keys page.")
+openrouter_api_key = st.session_state.get("openrouter_api_key", os.getenv("OPENROUTER_API_KEY"))
+google_api_key = st.session_state.get("google_api_key", os.getenv("GOOGLE_API_KEY"))
+
+if not (openai_api_key or openrouter_api_key or google_api_key):
+    st.error("⚠️ No API key found! Please set at least one API key (OpenAI/OpenRouter/Google) in the API Keys page.")
     st.stop()
 
 # Embedding model load
