@@ -15,6 +15,12 @@ st.markdown(
     You can choose which model to use later on the Generation page.
     """)
 
+# Informational message about setting API keys
+st.session_state.api_keys = st.session_state.openai_api_key or st.session_state.google_api_key or st.session_state.openrouter_api_key
+if not st.session_state.api_keys:
+    st.info("⬆️ Please set at least one API key (OpenAI/OpenRouter/Google) to continue.")
+
+
 # Initialize session state for API keys if not exists
 if "openai_api_key" not in st.session_state:
     st.session_state.openai_api_key = os.getenv("OPENAI_API_KEY", "")
