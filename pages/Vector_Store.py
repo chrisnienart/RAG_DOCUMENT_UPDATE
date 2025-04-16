@@ -18,6 +18,10 @@ st.markdown("Build a vector store with configurable hyperparameters for downstre
 
 # --- File Uploader ---
 uploaded_files = st.file_uploader("Upload source PDFs (e.g., RPEC 2022/2023 Reports)", type="pdf", accept_multiple_files=True)
+# if not uploaded_files:
+#     st.info("Please upload at least one PDF document.")
+# else:
+#     st.info(f"{len(uploaded_files)} documents ready to be loaded.")
 
 # --- Hyperparameter Inputs ---
 chunk_size = st.number_input("Chunk Size", value=1000, min_value=100, max_value=5000, step=100)
@@ -77,11 +81,11 @@ if st.button("🚀 Build Vector Store"):
 # except Exception as e:
 #     st.stop()
 
-# if uploaded_files:
-st.divider()
-st.page_link(
-    "pages/Upload_Dataset.py", 
-    label="Continue to Mortality Data Upload →",
-    icon="📤",
-    use_container_width=True
-)
+if len(uploaded_files) > 0:
+    st.divider()
+    st.page_link(
+        "pages/Upload_Dataset.py", 
+        label="Continue to Mortality Data Upload →",
+        icon="📤",
+        use_container_width=True
+    )
