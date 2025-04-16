@@ -39,7 +39,9 @@ dependencies = [
     "unstructured",
     "pdf2image",
     "pypdf",
-    "pytest"
+    "pytest",
+    "google-generativeai>=0.3.0",
+    "langchain-google-genai>=0.0.11"
 ]
 
 [project.optional-dependencies]
