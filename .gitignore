@@ -4,6 +4,7 @@
 
 # folders
 .venv
+RPEC_app.egg-info/
 temp_docs/
 vector_store/
 __pycache__/
