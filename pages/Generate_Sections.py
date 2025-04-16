@@ -74,7 +74,7 @@ try:
     retriever = vectorstore.as_retriever(search_kwargs={"k": k})
 
     # Initialize LLM components
-    if model_name.starts_with("gpt"):
+    if model_name.startswith("gpt"):
         llm = ChatOpenAI(
             model_name=model_name,
             temperature=temperature,
