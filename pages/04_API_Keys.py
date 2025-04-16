@@ -21,31 +21,37 @@ st.markdown("### API Key Configuration")
 
 # OpenAI Row
 with st.form("openai_key_form"):
-    cols = st.columns([4, 1])
+    cols = st.columns([3, 5, 2])
     with cols[0]:
+        st.markdown("**OpenAI API Key**  ")
+    with cols[1]:
         new_openai_key = st.text_input(
-            "OpenAI API Key",
+            label=" ",
             type="password",
             placeholder="sk-...",
-            help="Get your key from https://platform.openai.com/account/api-keys",
-            key="openai_input"
+            key="openai_input",
+            label_visibility="collapsed"
         )
-    with cols[1]:
-        submitted_openai = st.form_submit_button("Update OpenAI Key")
+    with cols[2]:
+        submitted_openai = st.form_submit_button("🔁 Update", use_container_width=True)
+    cols[1].caption("Get key: [platform.openai.com](https://platform.openai.com/account/api-keys)")
 
 # Google Row
 with st.form("google_key_form"):
-    cols = st.columns([4, 1])
+    cols = st.columns([3, 5, 2])
     with cols[0]:
+        st.markdown("**Google API Key**  ")
+    with cols[1]:
         new_google_key = st.text_input(
-            "Google API Key",
+            label=" ",
             type="password",
             placeholder="AIza...",
-            help="Get your key from https://console.cloud.google.com/apis/credentials",
-            key="google_input"
+            key="google_input",
+            label_visibility="collapsed"
         )
-    with cols[1]:
-        submitted_google = st.form_submit_button("Update Google Key")
+    with cols[2]:
+        submitted_google = st.form_submit_button("🔁 Update", use_container_width=True)
+    cols[1].caption("Get key: [console.cloud.google.com](https://console.cloud.google.com/apis/credentials)")
 
 # Handle OpenAI submissions
 if submitted_openai:
