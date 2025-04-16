@@ -2,8 +2,11 @@
 requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+packages = ["pages"]
+
 [project]
-name = "rpec_agent_2024"
+name = "RPEC Mortality Analysis Application"
 version = "0.1.0"
 authors = [
   {name="Your Name", email="your.email@example.com"},
