@@ -11,7 +11,7 @@ st.title("🔑 API Key Management")
 
 st.markdown(
     """
-    Set your OpenAI API key or Google API key to run this project. 
+    Set your OpenAI API, OpenRouter, Google API key to run this project. 
     You can choose which model to use later on the Generation page.
     """)
 
@@ -44,7 +44,7 @@ with st.form("openai_key_form"):
         submitted_openai = st.form_submit_button("🔁 Update", use_container_width=True)
     cols[1].caption("Get key: [platform.openai.com](https://platform.openai.com/account/api-keys)")
 
-# Google Row
+# OpenRouter Row
 with st.form("openrouter_key_form"):
     cols = st.columns([3, 5, 2])
     with cols[0]:
@@ -115,18 +115,20 @@ with status_cols[0]:
     else:
         st.error("❌ OpenAI: No key set")
 with status_cols[1]:
-    if st.session_state.google_api_key:
-        st.info("🔐 Google: Key set")
-    else:
-        st.error("❌ Google: No key set")
-with status_cols[2]:
     if st.session_state.openrouter_api_key:
         st.info("🔐 OpenRouter: Key set")
     else:
         st.error("❌ OpenRouter: No key set")
+with status_cols[2]:
+    if st.session_state.google_api_key:
+        st.info("🔐 Google: Key set")
+    else:
+        st.error("❌ Google: No key set")
+
 
 # Navigation button
-if st.session_state.openai_api_key or st.session_state.google_api_key:
+st.session_state.api_keys = st.session_state.openai_api_key or st.session_state.google_api_key or st.session_state.openrouter_api_key
+if st.session_state.api_keys:
     st.divider()
     st.page_link(
         "pages/03_Rag_Build.py", 

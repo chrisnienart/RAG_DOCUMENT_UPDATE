@@ -13,6 +13,10 @@ import matplotlib.pyplot as plt
 import re
 import tabulate
 
+# Page config
+st.set_page_config(page_title="Generate Section - RPEC", layout="wide")
+st.title("🚀 Generate Section 3.1")
+
 # Load environment and checks
 load_dotenv()
 openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
@@ -20,38 +24,40 @@ if not openai_api_key:
     st.error("⚠️ No OpenAI API key found! Please set your API key in the API Keys page.")
     st.stop()
 
-# Page config
-st.set_page_config(page_title="Generate Section - RPEC", layout="wide")
-st.title("🚀 Generate Section 3.1")
-st.markdown("Configure model settings and generate the mortality analysis section")
-
+# Embedding model load
+try:
+    with open("vector_store/embedding_model.txt", "r") as f:
+        st.session_state['embedding_model'] = f.read().strip()
+except Exception as e:
+    st.error("❌ Failed to load embedding model name. Please build a vector store first.")
+    st.stop()
+    
 # Dataset check
 if 'mortality_data' not in st.session_state:
-    st.error("⚠️ No dataset found! Please upload your data first.")
+    st.error("⚠️ No dataset found! Please upload your mortality data first.")
     st.stop()
 
-# Model Configuration Section
-st.header("⚙️ Model Settings")
-with st.container(border=True):
-    st.markdown("### 🧩 Configuration Parameters")
+# # Model Configuration Section
+# st.header("⚙️ Model Settings")
+# with st.container(border=True):
+#     st.markdown("### 🧩 Configuration Parameters")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.session_state['model_k'] = st.slider("🔍 Top K Chunks to Retrieve", 5, 50, 20)
-        st.session_state['temperature'] = st.slider("🌡️ Temperature (Creativity)", 0.0, 1.0, 0.2)
+#     col1, col2 = st.columns(2)
+#     with col1:
+#         st.session_state['model_k'] = st.slider("🔍 Top K Chunks to Retrieve", 5, 50, 20)
+#         st.session_state['temperature'] = st.slider("🌡️ Temperature (Creativity)", 0.0, 1.0, 0.2)
     
-    with col2:
-        st.session_state['model_name'] = st.selectbox("🧠 LLM Model", ["gpt-4-turbo", "gpt-3.5-turbo"])
-        try:
-            with open("vector_store/embedding_model.txt", "r") as f:
-                st.session_state['embedding_model'] = f.read().strip()
-            st.markdown(f"**Embedding Model:** `{st.session_state['embedding_model']}`")
-        except Exception as e:
-            st.error("❌ Failed to load embedding model name.")
-            st.stop()
+#     with col2:
+#         st.session_state['model_name'] = st.selectbox("🧠 LLM Model", ["gpt-4-turbo", "gpt-3.5-turbo"])
+#         try:
+#             with open("vector_store/embedding_model.txt", "r") as f:
+#                 st.session_state['embedding_model'] = f.read().strip()
+#             st.markdown(f"**Embedding Model:** `{st.session_state['embedding_model']}`")
+#         except Exception as e:
+#             st.error("❌ Failed to load embedding model name.")
+#             st.stop()
 
 # Generation Section
-st.header("📄 Report Generation")
 try:
     # Get configured values
     k = st.session_state['model_k']
@@ -93,7 +99,11 @@ try:
     )
 
     # Generation button and logic
-    if st.button("🚀 Generate Section 3.1", type="primary", use_container_width=True):
+    # if st.button("🚀 Generate Section 3.1", type="primary", use_container_width=True):
+    st.markdown(
+        "If all prior steps are completed, click the button below to generate Section 3.1 of the report."
+    )
+    if st.button("🚀 Generate Section 3.1"):
         df = st.session_state.mortality_data
         dataset_summary = df.head(20).to_markdown(index=False)
         query = f"""

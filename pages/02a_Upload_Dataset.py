@@ -14,7 +14,11 @@ st.markdown("Upload the dataset needed for Section 3.1 generation")
 
 # File upload
 uploaded_file = st.file_uploader("📂 Upload Updated Mortality Dataset (CSV)", type="csv")
-if uploaded_file:
+
+# Check whether the dataset is already uploaded in the session state.
+if 'mortality_data' in st.session_state and not uploaded_file:
+    st.success("✅ Dataset already uploaded.")
+elif uploaded_file:
     try:
         df = pd.read_csv(uploaded_file)
         st.session_state.mortality_data = df  # Store in session state
@@ -25,3 +29,13 @@ if uploaded_file:
         st.stop()
 else:
     st.info("⬆️ Please upload a synthetic mortality dataset to continue.")
+
+# Navigation button
+if 'mortality_data' in st.session_state:
+    st.divider()
+    st.page_link(
+        "pages/02a_Model_Config.py", 
+        label="Continue to Model Configuration →",
+        icon="⚙️",
+        use_container_width=True
+    )
