@@ -90,3 +90,14 @@ with status_cols[1]:
         st.info("🔐 Google: Key set")
     else:
         st.error("❌ Google: No key set")
+
+# Navigation button
+if st.session_state.openai_api_key or st.session_state.google_api_key:
+    st.divider()
+    st.page_link(
+        "pages/03_Rag_Build.py", 
+        label="Continue to Vector Store Creation →", 
+        icon="🛠️",
+        use_container_width=True,
+        type="primary"
+    )
