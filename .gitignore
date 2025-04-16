@@ -1,2 +1,7 @@
 .env
 .aider*
+.venv
+
+__pycache__/
+venv/
+rpec_agent_2024.egg-info/
