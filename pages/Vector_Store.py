@@ -17,17 +17,16 @@ st.title("🛠️ RAG Builder for RPEC Reports")
 st.markdown("Build a vector store with configurable hyperparameters for downstream retrieval.")
 
 # --- Previous Uploads Info ---
-if 'uploaded_files' in st.session_state and st.session_state.uploaded_files:
-    st.info(f"📁 Previously uploaded {len(st.session_state.uploaded_files)} files: {', '.join(f.name for f in st.session_state.uploaded_files)}")
+if 'uploaded_files' not in st.session_state:
+    st.info("Please upload at least one PDF document.")
+else:
+    st.success(f"📁 Previously uploaded files")
+
 
 # --- File Uploader ---
 uploaded_files = st.file_uploader("Upload source PDFs (e.g., RPEC 2022/2023 Reports)", type="pdf", accept_multiple_files=True)
 if uploaded_files:
     st.session_state.uploaded_files = uploaded_files
-# if not uploaded_files:
-#     st.info("Please upload at least one PDF document.")
-# else:
-#     st.info(f"{len(uploaded_files)} documents ready to be loaded.")
 
 # --- Hyperparameter Inputs ---
 chunk_size = st.number_input("Chunk Size", value=1000, min_value=100, max_value=5000, step=100)
@@ -81,13 +80,7 @@ if st.button("🚀 Build Vector Store"):
             st.text(traceback.format_exc())
 
 # Navigation button
-# try:
-#     with open("vector_store/embedding_model.txt", "r") as f:
-#         st.session_state['embedding_model'] = f.read().strip()
-# except Exception as e:
-#     st.stop()
-
-if len(uploaded_files) > 0:
+if 'vector_store_exists' in st.session_state:
     st.divider()
     st.page_link(
         "pages/Upload_Dataset.py", 
