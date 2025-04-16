@@ -22,19 +22,14 @@ if not openai_api_key:
 # Page config
 st.set_page_config(page_title="Generate Section 3.1 - RPEC", layout="wide")
 st.title("🧐 Generate Section 3.1 for RPEC 2024")
-st.markdown("Upload the dataset and use the latest vector store from the RAG Builder to generate an updated Section 3.1.")
+st.markdown("Use the uploaded dataset from the previous page to generate an updated Section 3.1.")
 
-# File upload
-df = None
-uploaded_file = st.file_uploader("📂 Upload Updated Mortality Dataset (CSV)", type="csv")
-if uploaded_file:
-    try:
-        df = pd.read_csv(uploaded_file)
-        st.success("✅ File uploaded and read successfully")
-        st.dataframe(df.head())
-    except Exception as e:
-        st.error(f"❌ Failed to read file: {e}")
-        st.stop()
+# Get data from session state
+if 'mortality_data' not in st.session_state:
+    st.error("⚠️ No dataset found! Please upload your data on the Upload Dataset page first.")
+    st.stop()
+
+df = st.session_state.mortality_data
 
 # Prompt for model and retrieval params (after upload)
 if df is not None:
