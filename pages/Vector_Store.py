@@ -16,17 +16,19 @@ st.set_page_config(page_title="RAG Builder - RPEC Vector Store", layout="wide")
 st.title("🛠️ RAG Builder for RPEC Reports")
 st.markdown("Build a vector store with configurable hyperparameters for downstream retrieval.")
 
-# --- Previous Uploads Info ---
-if 'uploaded_files' not in st.session_state:
-    st.info("Please upload at least one PDF document.")
-else:
-    st.success(f"📁 Previously uploaded files")
-
-
 # --- File Uploader ---
 uploaded_files = st.file_uploader("Upload source PDFs (e.g., RPEC 2022/2023 Reports)", type="pdf", accept_multiple_files=True)
 if uploaded_files:
     st.session_state.uploaded_files = uploaded_files
+
+# --- Previous Uploads Info ---
+if 'vector_store_exists' in st.session_state:
+    st.success("📁 Previously uploaded files")
+elif 'uploaded_files' in st.session_state:
+    st.info("Set hyperparameters and click 'Build Vector Store'.")
+else:
+    st.info("Please upload at least one PDF document.")
+
 
 # --- Hyperparameter Inputs ---
 chunk_size = st.number_input("Chunk Size", value=1000, min_value=100, max_value=5000, step=100)
