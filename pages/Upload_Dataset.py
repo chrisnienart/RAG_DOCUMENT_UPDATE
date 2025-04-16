@@ -34,7 +34,7 @@ else:
 if 'mortality_data' in st.session_state:
     st.divider()
     st.page_link(
-        "pages/02a_Model_Config.py", 
+        "pages/Model_Config.py", 
         label="Continue to Model Configuration →",
         icon="⚙️",
         use_container_width=True

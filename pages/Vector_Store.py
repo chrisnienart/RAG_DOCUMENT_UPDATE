@@ -80,7 +80,7 @@ if st.button("🚀 Build Vector Store"):
 # if uploaded_files:
 st.divider()
 st.page_link(
-    "pages/02a_Upload_Dataset.py", 
+    "pages/Upload_Dataset.py", 
     label="Continue to Mortality Data Upload →",
     icon="📤",
     use_container_width=True

@@ -38,7 +38,7 @@ st.session_state['temperature'] = st.slider("🌡️ Temperature (Creativity)", 
 # Navigation button
 st.divider()
 st.page_link(
-    "pages/02_Generate_Sections.py", 
+    "pages/Generate_Sections.py", 
     label="Continue to Section Generation →",
     icon="🚀",
     use_container_width=True

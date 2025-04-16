@@ -131,7 +131,7 @@ st.session_state.api_keys = st.session_state.openai_api_key or st.session_state.
 if st.session_state.api_keys:
     st.divider()
     st.page_link(
-        "pages/03_Rag_Build.py", 
+        "pages/Vector_Store.py", 
         label="Continue to Vector Store Creation →", 
         icon="🛠️",
         use_container_width=True
