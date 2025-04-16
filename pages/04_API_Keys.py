@@ -20,20 +20,28 @@ Enter your OpenAI API key below. The key will be stored in your session state
 and used for all API calls while the app is running.
 """)
 
-# API Key input with current value from session state
-api_key = st.text_input(
-    "OpenAI API Key",
-    value=st.session_state.openai_api_key,
-    type="password",
-    help="Enter your OpenAI API key here. Get one at https://platform.openai.com/api-keys"
-)
-
-# Update session state when new key is entered
-if api_key:
-    st.session_state.openai_api_key = api_key
-    st.success("✅ API key updated successfully!")
-else:
-    st.warning("⚠️ Please enter an API key to use the application.")
+with st.form("api_key_form"):
+    # API Key input with placeholder only
+    new_api_key = st.text_input(
+        "OpenAI API Key",
+        type="password",
+        placeholder="sk-... (enter new key to update)",
+        help="Enter your OpenAI API key here. Get one at https://platform.openai.com/api-keys",
+        key="api_key_input"
+    )
+    
+    # Form submit button
+    submitted = st.form_submit_button("Update API Key")
+    if submitted:
+        if new_api_key:
+            if new_api_key != st.session_state.openai_api_key:
+                st.session_state.openai_api_key = new_api_key
+                st.success("✅ API key updated successfully!")
+            else:
+                st.info("🔑 API key unchanged")
+        else:
+            st.session_state.openai_api_key = ""
+            st.error("❌ API key cleared from session state")
 
 # Display current key status
 st.markdown("### Current API Key Status")
