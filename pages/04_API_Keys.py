@@ -13,39 +13,68 @@ st.title("🔑 API Key Management")
 if "openai_api_key" not in st.session_state:
     st.session_state.openai_api_key = os.getenv("OPENAI_API_KEY", "")
 
-# API Key input section
-st.markdown("### OpenAI API Key Configuration")
-st.markdown("""
-Enter your OpenAI API key below. The key will be stored in your session state
-and used for all API calls while the app is running.
-""")
+# Initialize Google API key in session state
+if "google_api_key" not in st.session_state:
+    st.session_state.google_api_key = os.getenv("GOOGLE_API_KEY", "")
 
-with st.form("api_key_form"):
-    # API Key input with placeholder only
-    new_api_key = st.text_input(
-        "OpenAI API Key",
-        type="password",
-        placeholder="sk-... (enter new key to update)",
-        help="Enter your OpenAI API key here. Get one at https://platform.openai.com/api-keys",
-        key="api_key_input"
-    )
-    
-    # Form submit button
-    submitted = st.form_submit_button("Update")
-    if submitted:
-        if new_api_key:
-            if new_api_key != st.session_state.openai_api_key:
-                st.session_state.openai_api_key = new_api_key
-                st.success("✅ API key updated successfully!")
-            else:
-                st.info("🔑 API key unchanged")
-        else:
-            st.session_state.openai_api_key = ""
-            st.error("❌ API key cleared from session state")
+st.markdown("### API Key Configuration")
+
+# OpenAI Row
+with st.form("openai_key_form"):
+    cols = st.columns([4, 1])
+    with cols[0]:
+        new_openai_key = st.text_input(
+            "OpenAI API Key",
+            type="password",
+            placeholder="sk-...",
+            help="Get your key from https://platform.openai.com/account/api-keys",
+            key="openai_input"
+        )
+    with cols[1]:
+        submitted_openai = st.form_submit_button("Update OpenAI Key")
+
+# Google Row
+with st.form("google_key_form"):
+    cols = st.columns([4, 1])
+    with cols[0]:
+        new_google_key = st.text_input(
+            "Google API Key",
+            type="password",
+            placeholder="AIza...",
+            help="Get your key from https://console.cloud.google.com/apis/credentials",
+            key="google_input"
+        )
+    with cols[1]:
+        submitted_google = st.form_submit_button("Update Google Key")
+
+# Handle OpenAI submissions
+if submitted_openai:
+    if new_openai_key:
+        st.session_state.openai_api_key = new_openai_key
+        st.success("✅ OpenAI key updated!")
+    else:
+        st.session_state.openai_api_key = ""
+        st.error("❌ OpenAI key cleared")
+
+# Handle Google submissions
+if submitted_google:
+    if new_google_key:
+        st.session_state.google_api_key = new_google_key
+        st.success("✅ Google key updated!")
+    else:
+        st.session_state.google_api_key = ""
+        st.error("❌ Google key cleared")
 
 # Display current key status
-st.markdown("### Current API Key Status")
-if st.session_state.openai_api_key:
-    st.info("🔐 OpenAI API key is set in session state")
-else:
-    st.error("❌ No OpenAI API key is currently set")
+st.markdown("### Current Key Status")
+status_cols = st.columns(2)
+with status_cols[0]:
+    if st.session_state.openai_api_key:
+        st.info("🔐 OpenAI: Key set")
+    else:
+        st.error("❌ OpenAI: No key set")
+with status_cols[1]:
+    if st.session_state.google_api_key:
+        st.info("🔐 Google: Key set")
+    else:
+        st.error("❌ Google: No key set")
