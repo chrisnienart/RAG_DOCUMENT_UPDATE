@@ -14,7 +14,10 @@ import tabulate  # <-- Added for pandas to_markdown support
 
 # Load environment
 load_dotenv()
-openai_api_key = os.getenv("OPENAI_API_KEY")
+openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
+if not openai_api_key:
+    st.error("⚠️ No OpenAI API key found! Please set your API key in the API Keys page.")
+    st.stop()
 
 # Page config
 st.set_page_config(page_title="Generate Section 3.1 - RPEC", layout="wide")
