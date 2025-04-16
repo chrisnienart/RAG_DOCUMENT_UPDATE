@@ -16,8 +16,14 @@ st.set_page_config(page_title="RAG Builder - RPEC Vector Store", layout="wide")
 st.title("🛠️ RAG Builder for RPEC Reports")
 st.markdown("Build a vector store with configurable hyperparameters for downstream retrieval.")
 
+# --- Previous Uploads Info ---
+if 'uploaded_files' in st.session_state and st.session_state.uploaded_files:
+    st.info(f"📁 Previously uploaded {len(st.session_state.uploaded_files)} files: {', '.join(f.name for f in st.session_state.uploaded_files)}")
+
 # --- File Uploader ---
 uploaded_files = st.file_uploader("Upload source PDFs (e.g., RPEC 2022/2023 Reports)", type="pdf", accept_multiple_files=True)
+if uploaded_files:
+    st.session_state.uploaded_files = uploaded_files
 # if not uploaded_files:
 #     st.info("Please upload at least one PDF document.")
 # else:
