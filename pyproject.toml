@@ -8,7 +8,7 @@ package-dir = {"" = "."}
 include-package-data = true
 
 [project.scripts]
-rpec-agent = "rpec_agent_2024:main"
+rpec-agent = "app:main"
 
 [project]
 name = "rpec_agent_2024"
