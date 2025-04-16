@@ -12,6 +12,8 @@ import traceback
 import matplotlib.pyplot as plt
 import re
 import tabulate
+import google.generativeai as genai
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Page config
 st.set_page_config(page_title="Generate Section - RPEC", layout="wide")
@@ -93,7 +95,7 @@ try:
         )
     else:
         llm = ChatGoogleGenerativeAI(
-            model=model_choice,
+            model=model_name,
             temperature=temperature,
             google_api_key=google_api_key
         )
