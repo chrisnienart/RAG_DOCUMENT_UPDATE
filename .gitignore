@@ -8,3 +8,4 @@ __pycache__/
 venv/
 rpec_agent_2024.egg-info/
 temp_docs/
+vector_store/
