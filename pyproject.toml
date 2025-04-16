@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 packages = ["pages"]
 
 [project]
-name = "RPEC Mortality Analysis Application"
+name = "RPEC_app"
 version = "0.1.0"
 authors = [
   {name="Your Name", email="your.email@example.com"},
