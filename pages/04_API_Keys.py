@@ -9,6 +9,12 @@ load_dotenv()
 st.set_page_config(page_title="API Key Management", layout="wide")
 st.title("🔑 API Key Management")
 
+st.markdown(
+    """
+    Set your OpenAI API key or Google API key to run this project. 
+    You can choose which model to use later on the Generation page.
+    """)
+
 # Initialize session state for API keys if not exists
 if "openai_api_key" not in st.session_state:
     st.session_state.openai_api_key = os.getenv("OPENAI_API_KEY", "")
