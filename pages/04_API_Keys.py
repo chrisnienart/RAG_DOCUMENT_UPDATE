@@ -31,7 +31,7 @@ with st.form("api_key_form"):
     )
     
     # Form submit button
-    submitted = st.form_submit_button("Update API Key")
+    submitted = st.form_submit_button("Update")
     if submitted:
         if new_api_key:
             if new_api_key != st.session_state.openai_api_key:
