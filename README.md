@@ -38,6 +38,26 @@ source .venv/bin/activate  # Linux/MacOS
 uv pip install .[dev]
 ```
 
+### Local Install
+
+If `uv` cannot be installed globally or you prefer to install locally, you can install in the project directory.
+
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+pip install uv
+uv pip install .[dev]
+```
+
+```bash
+# Linux/MacOS
+python -m venv venv
+source venv/bin/activate
+pip install uv
+uv pip install .[dev]
+```
+
 ## Running the App
 
 To run the app, run the following command:
