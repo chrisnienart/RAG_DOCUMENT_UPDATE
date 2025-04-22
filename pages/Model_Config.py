@@ -1,27 +1,13 @@
 import streamlit as st
-import pandas as pd
-import os
-from dotenv import load_dotenv
-
 
 # Page config
 st.set_page_config(page_title="Model Config - RPEC", layout="wide")
 st.title("⚙️ Model Configuration")
 st.markdown("Configure the model and hyperparameters for Section 3.1 generation")
 
-# Load environment and checks
-load_dotenv()
-openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
-if not openai_api_key:
-    st.error("⚠️ No OpenAI API key found! Please set your API key in the API Keys page.")
-    st.stop()
-
-# Embedding model load
-try:
-    with open("vector_store/embedding_model.txt", "r") as f:
-        st.session_state['embedding_model'] = f.read().strip()
-except Exception as e:
-    st.error("❌ Failed to load embedding model name.")
+# Embedding model check
+if 'embedding_model' not in st.session_state:
+    st.error("⚠️ No embedding model found! Please build a vector store first.")
     st.stop()
     
 # Dataset check

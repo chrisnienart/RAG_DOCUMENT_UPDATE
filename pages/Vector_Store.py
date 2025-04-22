@@ -29,10 +29,6 @@ if not openai_api_key:
     st.error("⚠️ No OpenAI API key found! Please set your API key in the API Keys page.")
     st.stop()
 
-# if "openai_api_key" not in st.session_state:
-#     st.session_state.openai_api_key = os.getenv("OPENAI_API_KEY")
-# openai_api_key = st.session_state.openai_api_key
-
 # Page config
 st.set_page_config(page_title="RAG Builder - RPEC Vector Store", layout="wide")
 st.title("🛠️ RAG Builder for RPEC Reports")
@@ -50,7 +46,6 @@ elif 'uploaded_files' in st.session_state:
     st.info("Set hyperparameters and click 'Build Vector Store'.")
 else:
     st.info("Please upload at least one PDF document.")
-
 
 # --- 🧠 RAG Tuning Tips Helper ---
 with st.expander("🧠 How to choose Chunk Size, Overlap, and Splitter Type?", expanded=False):
@@ -286,7 +281,6 @@ if st.button("🚀 Build Vector Store"):
                 f.write(f"{embedding_source} | {embedding_model} | dim: {vector_dim}")
 
             # Summary of uploads
-            # st.markdown("### ✅ Final Summary")
             st.info(f"""
 📚 **Upload Summary**
 - Total files uploaded: {len(file_stats)}

@@ -1,4 +1,3 @@
-# pages/02_Generate_Section.py
 import streamlit as st
 import pandas as pd
 import os
@@ -12,7 +11,6 @@ from langchain.prompts import PromptTemplate
 import traceback
 import matplotlib.pyplot as plt
 import re
-import tabulate
 import google.generativeai as genai
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -31,14 +29,6 @@ if not (openai_api_key or openrouter_api_key or google_api_key):
     st.stop()
 
 
-# # Embedding model load
-# try:
-#     with open("vector_store/embedding_model.txt", "r") as f:
-#         st.session_state['embedding_model'] = f.read().strip()
-# except Exception as e:
-#     st.error("❌ Failed to load embedding model name. Please build a vector store first.")
-#     st.stop()
-
 # Embedding model check
 if 'embedding_model' not in st.session_state:
     st.error("⚠️ No embedding model found! Please build a vector store first.")
@@ -49,26 +39,6 @@ if 'mortality_data' not in st.session_state:
     st.error("⚠️ No dataset found! Please upload your mortality data first.")
     st.stop()
 
-# # Model Configuration Section
-# st.header("⚙️ Model Settings")
-# with st.container(border=True):
-#     st.markdown("### 🧩 Configuration Parameters")
-    
-#     col1, col2 = st.columns(2)
-#     with col1:
-#         st.session_state['model_k'] = st.slider("🔍 Top K Chunks to Retrieve", 5, 50, 20)
-#         st.session_state['temperature'] = st.slider("🌡️ Temperature (Creativity)", 0.0, 1.0, 0.2)
-    
-#     with col2:
-#         st.session_state['model_name'] = st.selectbox("🧠 LLM Model", ["gpt-4-turbo", "gpt-3.5-turbo"])
-#         try:
-#             with open("vector_store/embedding_model.txt", "r") as f:
-#                 st.session_state['embedding_model'] = f.read().strip()
-#             st.markdown(f"**Embedding Model:** `{st.session_state['embedding_model']}`")
-#         except Exception as e:
-#             st.error("❌ Failed to load embedding model name.")
-#             st.stop()
-
 # Generation Section
 try:
     # Get configured values
@@ -76,8 +46,7 @@ try:
     model_name = st.session_state['model_name']
     temperature = st.session_state['temperature']
     embedding_model = st.session_state['embedding_model']
-    # store_path = st.session_state['vector_store_path']
-
+ 
     # Load vector store
     collection_name = st.session_state.get('qdrant_collection')
     if not collection_name:
