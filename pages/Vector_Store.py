@@ -121,12 +121,15 @@ with st.expander("🔧 Qdrant Connection Settings", expanded=True):
                                 max_value=65535,
                                 help="6333 for HTTP, 6334 for HTTPS/gRPC")
 
+# --- Output names ---
+collection_base_name = "rpec_vector_store"
+store_name = "vector_store"
+metadata_name = "vector_metadata"
+
 # --- Generate Unique Collection Name ---
 unique_id = uuid.uuid4().hex[:6]
-collection_name = f"rpec_vector_store_{embedding_source.lower().replace(' ', '_')}_{vector_dim}_{unique_id}"
+collection_name = f"{collection_base_name}_{embedding_source.lower().replace(' ', '_')}_{vector_dim}_{unique_id}"
 
-# --- Output name ---
-store_name = "vector_store"  # Generic name used downstream
 
 if st.button("🚀 Build Vector Store"):
     if not uploaded_files:
@@ -209,31 +212,36 @@ if st.button("🚀 Build Vector Store"):
                     model_name=embedding_model
                 )
 
-            # Qdrant connection with configurable settings
-            try:
-                # Sanitize host input
-                clean_host = qdrant_host.replace("http://", "").replace("https://", "").strip()
+            # Qdrant is running from RAM
+            qdrant_client = QdrantClient(":memory:")  
+
+#             # Qdrant connection with configurable settings
+#             try:
+#                 # Sanitize host input
+#                 clean_host = qdrant_host.replace("http://", "").replace("https://", "").strip()
                 
-                qdrant_client = QdrantClient(
-                    url=f"http{'s' if use_https else ''}://{clean_host}:{qdrant_port}",
-                    api_key=st.session_state.qdrant_api_key or None,
-                    prefer_grpc=use_https
-                )
+#                 qdrant_client = QdrantClient(
+#                     url=f"http{'s' if use_https else ''}://{clean_host}:{qdrant_port}",
+#                     api_key=st.session_state.qdrant_api_key or None,
+#                     prefer_grpc=use_https
+#                 )
                 
-                # Test connection with timeout
-                with st.spinner("Testing Qdrant connection..."):
-                    qdrant_client.get_collections(timeout=10)
+#                 qdrant_client = QdrantClient(":memory:")  # Qdrant is running from RAM.
+
+#                 # Test connection with timeout
+#                 with st.spinner("Testing Qdrant connection..."):
+#                     qdrant_client.get_collections(timeout=10)
                     
-            except Exception as e:
-                st.error(f"""
-❌ Connection failed: {e}
-Troubleshooting:
-1. For local Qdrant: Run `docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant`
-2. Check firewall allows port {qdrant_port}
-3. Cloud users: Verify API key and cluster URL
-4. Ensure protocol (HTTP/HTTPS) matches port configuration
-""")
-                st.stop()
+#             except Exception as e: # Exception as e: st.error(f"❌ Failed to connect to Qdrant: {e}")
+#                 st.error(f"""
+# ❌ Connection failed: {e}
+# Troubleshooting:
+# 1. For local Qdrant: Run `docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant`
+# 2. Check firewall allows port {qdrant_port}
+# 3. Cloud users: Verify API key and cluster URL
+# 4. Ensure protocol (HTTP/HTTPS) matches port configuration
+# """)
+#                 st.stop()
 
             # Create new unique collection
             qdrant_client.create_collection(
@@ -262,9 +270,9 @@ Troubleshooting:
 
             # ✅ Final Summary
             st.markdown("### ✅ Final Summary")
-            st.success(f"📚 Total files uploaded: {len(file_stats)}")
-            st.success(f"🔗 Total chunks created: {len(all_chunks)}")
-            st.success(f"🎉 Vector store pushed to Qdrant as collection: '{collection_name}'")
+            st.info(f"📚 Total files uploaded: {len(file_stats)}")
+            st.info(f"🔗 Total chunks created: {len(all_chunks)}")
+            st.info(f"🎉 Vector store pushed to Qdrant as collection: '{collection_name}'")
             st.info(f"🧠 Embedding: {embedding_source} | {embedding_model} | Dim: {vector_dim}")
 
         except Exception as e:
