@@ -221,8 +221,14 @@ if st.button("🚀 Build Vector Store"):
                     model_name=embedding_model
                 )
 
-            # Qdrant is running from RAM
-            qdrant_client = QdrantClient(":memory:")  
+            # Ensure vector store directory exists
+            os.makedirs("vector_store", exist_ok=True)
+            
+            # Initialize Qdrant with persistent storage
+            qdrant_client = QdrantClient(
+                path="vector_store",
+                prefer_grpc=True
+            )
 
 #             # Qdrant connection with configurable settings
 #             try:

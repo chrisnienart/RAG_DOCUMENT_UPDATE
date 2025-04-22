@@ -85,7 +85,18 @@ try:
         st.stop()
 
     embeddings = OpenAIEmbeddings(model=embedding_model, openai_api_key=openai_api_key)
-    qdrant_client = QdrantClient(":memory:")  # Must match Vector_Store.py's in-memory setup
+    qdrant_client = QdrantClient(
+        path="vector_store",
+        prefer_grpc=True
+    )
+
+    # Verify collection exists
+    try:
+        qdrant_client.get_collection(collection_name)
+    except Exception:
+        st.error(f"❌ Collection '{collection_name}' not found in vector_store directory")
+        st.stop()
+
     vectorstore = Qdrant(
         client=qdrant_client,
         collection_name=collection_name,
