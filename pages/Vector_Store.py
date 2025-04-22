@@ -100,12 +100,26 @@ else:
 # --- Qdrant Connection Config ---
 with st.expander("🔧 Qdrant Connection Settings", expanded=True):
     st.markdown("""
-**Local Qdrant**: Run `docker run -p 6333:6333 qdrant/qdrant`  
-**Qdrant Cloud**: Get credentials at [cloud.qdrant.io](https://cloud.qdrant.io)""")
+**Connection Guide**  
+- **Local Docker**: Keep host as `localhost` and port `6333`  
+- **Qdrant Cloud**: Use full URL from dashboard (e.g., `cluster.cloud.qdrant.io`) and port `6334`  
+- **HTTPS Required**: Always check 'Use HTTPS' for cloud connections""")
     
-    qdrant_host = st.text_input("Qdrant Host", value=os.getenv("QDRANT_HOST", "localhost"))
-    qdrant_port = st.number_input("Qdrant Port", value=int(os.getenv("QDRANT_PORT", 6333)), min_value=1, max_value=65535)
-    use_https = st.checkbox("Use HTTPS", value=os.getenv("QDRANT_USE_HTTPS", "False").lower() == "true")
+    qdrant_host = st.text_input("Qdrant Host", 
+                              value=os.getenv("QDRANT_HOST", "localhost"),
+                              help="For cloud: [your-cluster].cloud.qdrant.io")
+    
+    # Dynamic port default based on HTTPS selection
+    use_https = st.checkbox("Use HTTPS", 
+                          value=os.getenv("QDRANT_USE_HTTPS", "False").lower() == "true",
+                          help="Required for Qdrant Cloud")
+    
+    port_default = 6334 if use_https else 6333
+    qdrant_port = st.number_input("Qdrant Port", 
+                                value=int(os.getenv("QDRANT_PORT", port_default)), 
+                                min_value=1, 
+                                max_value=65535,
+                                help="6333 for HTTP, 6334 for HTTPS/gRPC")
 
 # --- Generate Unique Collection Name ---
 unique_id = uuid.uuid4().hex[:6]
@@ -197,15 +211,28 @@ if st.button("🚀 Build Vector Store"):
 
             # Qdrant connection with configurable settings
             try:
+                # Sanitize host input
+                clean_host = qdrant_host.replace("http://", "").replace("https://", "").strip()
+                
                 qdrant_client = QdrantClient(
-                    url=f"http{'s' if use_https else ''}://{qdrant_host}:{qdrant_port}",
+                    url=f"http{'s' if use_https else ''}://{clean_host}:{qdrant_port}",
                     api_key=st.session_state.qdrant_api_key or None,
                     prefer_grpc=use_https
                 )
-                # Test connection
-                qdrant_client.get_collections()
+                
+                # Test connection with timeout
+                with st.spinner("Testing Qdrant connection..."):
+                    qdrant_client.get_collections(timeout=10)
+                    
             except Exception as e:
-                st.error(f"❌ Failed to connect to Qdrant: {e}")
+                st.error(f"""
+❌ Connection failed: {e}
+Troubleshooting:
+1. For local Qdrant: Run `docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant`
+2. Check firewall allows port {qdrant_port}
+3. Cloud users: Verify API key and cluster URL
+4. Ensure protocol (HTTP/HTTPS) matches port configuration
+""")
                 st.stop()
 
             # Create new unique collection
