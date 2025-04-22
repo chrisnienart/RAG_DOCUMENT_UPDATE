@@ -17,6 +17,10 @@ import traceback
 # Ensure NLTK tokenizer resources are available
 nltk.download(["punkt", "punkt_tab"])
 
+# Initialize Qdrant API key in session state
+if "qdrant_api_key" not in st.session_state:
+    st.session_state.qdrant_api_key = os.getenv("QDRANT_API_KEY", "")
+
 # Load environment
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
