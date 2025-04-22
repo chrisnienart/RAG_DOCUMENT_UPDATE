@@ -76,7 +76,7 @@ try:
     model_name = st.session_state['model_name']
     temperature = st.session_state['temperature']
     embedding_model = st.session_state['embedding_model']
-    store_path = st.session_state['vector_store_path']
+    # store_path = st.session_state['vector_store_path']
 
     # Load vector store
     collection_name = st.session_state.get('qdrant_collection')
