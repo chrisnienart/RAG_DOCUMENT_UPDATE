@@ -93,6 +93,17 @@ elif "paraphrase-MiniLM-L12" in embedding_model:
 else:
     vector_dim = 768  # fallback
 
+# --- Qdrant Connection Config ---
+with st.expander("🔧 Qdrant Connection Settings", expanded=True):
+    st.markdown("""
+**Local Qdrant**: Run `docker run -p 6333:6333 qdrant/qdrant`  
+**Qdrant Cloud**: Get credentials at [cloud.qdrant.io](https://cloud.qdrant.io)""")
+    
+    qdrant_host = st.text_input("Qdrant Host", value=os.getenv("QDRANT_HOST", "localhost"))
+    qdrant_port = st.number_input("Qdrant Port", value=int(os.getenv("QDRANT_PORT", 6333)), min_value=1, max_value=65535)
+    qdrant_api_key = st.text_input("Qdrant API Key", type="password", value=os.getenv("QDRANT_API_KEY", ""))
+    use_https = st.checkbox("Use HTTPS", value=os.getenv("QDRANT_USE_HTTPS", "False").lower() == "true")
+
 # --- Generate Unique Collection Name ---
 unique_id = uuid.uuid4().hex[:6]
 collection_name = f"rpec_vector_store_{embedding_source.lower().replace(' ', '_')}_{vector_dim}_{unique_id}"
@@ -181,8 +192,18 @@ if st.button("🚀 Build Vector Store"):
                     model_name=embedding_model
                 )
 
-            # Qdrant connection
-            qdrant_client = QdrantClient(host="localhost", port=6333)
+            # Qdrant connection with configurable settings
+            try:
+                qdrant_client = QdrantClient(
+                    url=f"http{'s' if use_https else ''}://{qdrant_host}:{qdrant_port}",
+                    api_key=qdrant_api_key or None,
+                    prefer_grpc=use_https
+                )
+                # Test connection
+                qdrant_client.get_collections()
+            except Exception as e:
+                st.error(f"❌ Failed to connect to Qdrant: {e}")
+                st.stop()
 
             # Create new unique collection
             qdrant_client.create_collection(
