@@ -270,10 +270,13 @@ if st.button("🚀 Build Vector Store"):
 
             # ✅ Final Summary
             st.markdown("### ✅ Final Summary")
-            st.info(f"📚 Total files uploaded: {len(file_stats)}")
-            st.info(f"🔗 Total chunks created: {len(all_chunks)}")
-            st.info(f"🎉 Vector store pushed to Qdrant as collection: '{collection_name}'")
-            st.info(f"🧠 Embedding: {embedding_source} | {embedding_model} | Dim: {vector_dim}")
+            st.info(f"""
+📚 **Final Summary**  
+- Total files uploaded: {len(file_stats)}
+- Total chunks created: {len(all_chunks)}
+- Vector store collection: '{collection_name}'
+- Embedding: {embedding_source} | {embedding_model} | Dim: {vector_dim}
+""")
 
         except Exception as e:
             st.error(f"❌ Failed to build vector store: {e}")
