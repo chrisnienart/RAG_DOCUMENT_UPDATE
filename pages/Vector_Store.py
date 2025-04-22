@@ -15,15 +15,23 @@ import nltk
 import traceback
 
 # Ensure NLTK tokenizer resources are available
-nltk.download(["punkt", "punkt_tab"])
+if(nltk.data.find("tokenizers/punkt") is None):
+    nltk.download(["punkt", "punkt_tab"])
 
-# Initialize Qdrant API key in session state
-if "qdrant_api_key" not in st.session_state:
-    st.session_state.qdrant_api_key = os.getenv("QDRANT_API_KEY", "")
+# # Initialize Qdrant API key in session state
+# if "qdrant_api_key" not in st.session_state:
+#     st.session_state.qdrant_api_key = os.getenv("QDRANT_API_KEY", "")
 
 # Load environment
 load_dotenv()
-openai_api_key = os.getenv("OPENAI_API_KEY")
+openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
+if not openai_api_key:
+    st.error("⚠️ No OpenAI API key found! Please set your API key in the API Keys page.")
+    st.stop()
+
+# if "openai_api_key" not in st.session_state:
+#     st.session_state.openai_api_key = os.getenv("OPENAI_API_KEY")
+# openai_api_key = st.session_state.openai_api_key
 
 # Page config
 st.set_page_config(page_title="RAG Builder - RPEC Vector Store", layout="wide")
@@ -84,6 +92,7 @@ elif embedding_source == "Hugging Face (local)":
             "sentence-transformers/paraphrase-MiniLM-L12-v2"
         ]
     )
+st.session_state['embedding_model'] = embedding_model
 
 # --- Auto Vector Dimension Detection ---
 if "text-embedding-3-small" in embedding_model:
@@ -98,7 +107,7 @@ else:
     vector_dim = 768  # fallback
 
 # --- Qdrant Connection Config ---
-with st.expander("🔧 Qdrant Connection Settings", expanded=True):
+with st.expander("🔧 Qdrant Connection Settings", expanded=False):
     st.markdown("""
 **Connection Guide**  
 - **Local Docker**: Keep host as `localhost` and port `6333`  
@@ -122,9 +131,9 @@ with st.expander("🔧 Qdrant Connection Settings", expanded=True):
                                 help="6333 for HTTP, 6334 for HTTPS/gRPC")
 
 # --- Output names ---
-collection_base_name = "rpec_vector_store"
-store_name = "vector_store"
-metadata_name = "vector_metadata"
+collection_base_name = "rpec"
+store_path = "vector_store"
+# metadata_path = "vector_metadata"
 
 # --- Generate Unique Collection Name ---
 unique_id = uuid.uuid4().hex[:6]
@@ -197,8 +206,8 @@ if st.button("🚀 Build Vector Store"):
                 st.dataframe(chunk_df)
 
             # Save metadata to disk
-            os.makedirs("vector_metadata", exist_ok=True)
-            with open(os.path.join("vector_metadata", f"{collection_name}_document_metadata.json"), "w") as f:
+            os.makedirs(store_path, exist_ok=True)
+            with open(os.path.join(store_path, f"{collection_name}_document_metadata.json"), "w") as f:
                 json.dump(metadata_log, f, indent=2)
 
             # Embedding model init
@@ -256,6 +265,7 @@ if st.button("🚀 Build Vector Store"):
                 embeddings=embeddings,
             )
             vectorstore.add_documents(all_chunks)
+            st.session_state.vector_store_exists = True
 
             # ✅ Phase 2 Validation: Compare vector count
             stored_vectors = qdrant_client.count(collection_name=collection_name).count
@@ -265,13 +275,13 @@ if st.button("🚀 Build Vector Store"):
                 st.success(f"✅ Verified: {stored_vectors} vectors stored in Qdrant — all chunks embedded successfully.")
 
             # Save embedding metadata
-            with open(os.path.join("vector_metadata", f"{collection_name}_embedding_model.txt"), "w") as f:
+            with open(os.path.join(store_path, f"{collection_name}_embedding_model.txt"), "w") as f:
                 f.write(f"{embedding_source} | {embedding_model} | dim: {vector_dim}")
 
-            # ✅ Final Summary
-            st.markdown("### ✅ Final Summary")
+            # Summary of uploads
+            # st.markdown("### ✅ Final Summary")
             st.info(f"""
-📚 **Final Summary**  
+📚 **Upload Summary**
 - Total files uploaded: {len(file_stats)}
 - Total chunks created: {len(all_chunks)}
 - Vector store collection: '{collection_name}'

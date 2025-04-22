@@ -29,14 +29,20 @@ if not (openai_api_key or openrouter_api_key or google_api_key):
     st.error("⚠️ No API key found! Please set at least one API key (OpenAI/OpenRouter/Google) in the API Keys page.")
     st.stop()
 
-# Embedding model load
-try:
-    with open("vector_store/embedding_model.txt", "r") as f:
-        st.session_state['embedding_model'] = f.read().strip()
-except Exception as e:
-    st.error("❌ Failed to load embedding model name. Please build a vector store first.")
+
+# # Embedding model load
+# try:
+#     with open("vector_store/embedding_model.txt", "r") as f:
+#         st.session_state['embedding_model'] = f.read().strip()
+# except Exception as e:
+#     st.error("❌ Failed to load embedding model name. Please build a vector store first.")
+#     st.stop()
+
+# Embedding model check
+if 'embedding_model' not in st.session_state:
+    st.error("⚠️ No embedding model found! Please build a vector store first.")
     st.stop()
-    
+
 # Dataset check
 if 'mortality_data' not in st.session_state:
     st.error("⚠️ No dataset found! Please upload your mortality data first.")
@@ -69,10 +75,12 @@ try:
     model_name = st.session_state['model_name']
     temperature = st.session_state['temperature']
     embedding_model = st.session_state['embedding_model']
+    store_path = st.session_state['vector_store_path']
 
     # Load vector store
     embeddings = OpenAIEmbeddings(model=embedding_model, openai_api_key=openai_api_key)
-    vectorstore = FAISS.load_local("vector_store", embeddings, allow_dangerous_deserialization=True)
+    # vectorstore = FAISS.load_local(store_path, embeddings, allow_dangerous_deserialization=True)
+    vectorstore = Qdrant.load_local(store_path, embeddings, allow_dangerous_deserialization=True)
     retriever = vectorstore.as_retriever(search_kwargs={"k": k})
 
     # Initialize LLM components
