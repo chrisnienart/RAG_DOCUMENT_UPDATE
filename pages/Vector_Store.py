@@ -14,8 +14,8 @@ from qdrant_client.models import Distance, VectorParams
 import nltk
 import traceback
 
-# Ensure punkt tokenizer is available for NLTK
-nltk.download("punkt")
+# Ensure NLTK tokenizer resources are available
+nltk.download(["punkt", "punkt_tab"])
 
 # Load environment
 load_dotenv()
