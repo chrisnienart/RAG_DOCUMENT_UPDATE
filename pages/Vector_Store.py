@@ -101,7 +101,6 @@ with st.expander("🔧 Qdrant Connection Settings", expanded=True):
     
     qdrant_host = st.text_input("Qdrant Host", value=os.getenv("QDRANT_HOST", "localhost"))
     qdrant_port = st.number_input("Qdrant Port", value=int(os.getenv("QDRANT_PORT", 6333)), min_value=1, max_value=65535)
-    qdrant_api_key = st.text_input("Qdrant API Key", type="password", value=os.getenv("QDRANT_API_KEY", ""))
     use_https = st.checkbox("Use HTTPS", value=os.getenv("QDRANT_USE_HTTPS", "False").lower() == "true")
 
 # --- Generate Unique Collection Name ---
@@ -196,7 +195,7 @@ if st.button("🚀 Build Vector Store"):
             try:
                 qdrant_client = QdrantClient(
                     url=f"http{'s' if use_https else ''}://{qdrant_host}:{qdrant_port}",
-                    api_key=qdrant_api_key or None,
+                    api_key=st.session_state.qdrant_api_key or None,
                     prefer_grpc=use_https
                 )
                 # Test connection
