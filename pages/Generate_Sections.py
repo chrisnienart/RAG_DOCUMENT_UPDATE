@@ -3,7 +3,8 @@ import streamlit as st
 import pandas as pd
 import os
 from dotenv import load_dotenv
-from langchain_community.vectorstores import FAISS
+from qdrant_client import QdrantClient
+from langchain_community.vectorstores import Qdrant
 from langchain_community.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
@@ -78,9 +79,18 @@ try:
     store_path = st.session_state['vector_store_path']
 
     # Load vector store
+    collection_name = st.session_state.get('qdrant_collection')
+    if not collection_name:
+        st.error("⚠️ No Qdrant collection found! Please build a vector store first.")
+        st.stop()
+
     embeddings = OpenAIEmbeddings(model=embedding_model, openai_api_key=openai_api_key)
-    # vectorstore = FAISS.load_local(store_path, embeddings, allow_dangerous_deserialization=True)
-    vectorstore = Qdrant.load_local(store_path, embeddings, allow_dangerous_deserialization=True)
+    qdrant_client = QdrantClient(":memory:")  # Must match Vector_Store.py's in-memory setup
+    vectorstore = Qdrant(
+        client=qdrant_client,
+        collection_name=collection_name,
+        embeddings=embeddings
+    )
     retriever = vectorstore.as_retriever(search_kwargs={"k": k})
 
     # Initialize LLM components

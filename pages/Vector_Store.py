@@ -266,6 +266,7 @@ if st.button("🚀 Build Vector Store"):
             )
             vectorstore.add_documents(all_chunks)
             st.session_state.vector_store_exists = True
+            st.session_state['qdrant_collection'] = collection_name  # Store collection name
 
             # ✅ Phase 2 Validation: Compare vector count
             stored_vectors = qdrant_client.count(collection_name=collection_name).count
