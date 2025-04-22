@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient
 from langchain_community.vectorstores import Qdrant
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
@@ -84,7 +84,25 @@ try:
         st.error("⚠️ No Qdrant collection found! Please build a vector store first.")
         st.stop()
 
-    embeddings = OpenAIEmbeddings(model=embedding_model, openai_api_key=openai_api_key)
+    if "text-embedding" in embedding_model:
+        if not openai_api_key:
+            st.error("⚠️ OpenAI API key required for OpenAI embeddings!")
+            st.stop()
+        embeddings = OpenAIEmbeddings(
+            model=embedding_model,
+            openai_api_key=openai_api_key
+        )
+    else:  # Hugging Face case
+        embeddings = HuggingFaceEmbeddings(
+            model_name=embedding_model
+        )
+
+    try:
+        embeddings.embed_query("test")  # Verify embeddings work
+    except Exception as e:
+        st.error(f"❌ Failed to initialize embeddings: {e}")
+        st.stop()
+
     qdrant_client = QdrantClient(
         path="vector_store",
         prefer_grpc=True
