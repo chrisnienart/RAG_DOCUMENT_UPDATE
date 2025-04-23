@@ -14,9 +14,18 @@ from qdrant_client.models import Distance, VectorParams
 import nltk
 import traceback
 
-# Ensure NLTK tokenizer resources are available
-if(nltk.data.find("tokenizers/punkt") is None):
-    nltk.download(["punkt", "punkt_tab"])
+# Ensure NLTK tokenizer is available
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    with st.spinner("📥 Downloading NLTK tokenizers (first-time setup)..."):
+        nltk.download('punkt')
+    try:
+        nltk.data.find('tokenizers/punkt')
+    except LookupError:
+        st.error("❌ NLTK tokenizer download failed! Check:")
+        st.markdown("- Internet connection\n- Proxy/firewall settings\n- Disk permissions")
+        st.stop()
 
 # # Initialize Qdrant API key in session state
 # if "qdrant_api_key" not in st.session_state:
