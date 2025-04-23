@@ -128,7 +128,7 @@ with st.expander("🔧 Qdrant Connection Settings", expanded=False):
 # --- Output names ---
 collection_base_name = "rpec"
 store_path = "vector_store"
-# metadata_path = "vector_metadata"
+st.session_state['store_path'] = store_path
 
 # --- Generate Unique Collection Name ---
 unique_id = uuid.uuid4().hex[:6]

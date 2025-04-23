@@ -28,7 +28,6 @@ if not (openai_api_key or openrouter_api_key or google_api_key):
     st.error("⚠️ No API key found! Please set at least one API key (OpenAI/OpenRouter/Google) in the API Keys page.")
     st.stop()
 
-
 # Embedding model check
 if 'embedding_model' not in st.session_state:
     st.error("⚠️ No embedding model found! Please build a vector store first.")
@@ -46,6 +45,7 @@ try:
     model_name = st.session_state['model_name']
     temperature = st.session_state['temperature']
     embedding_model = st.session_state['embedding_model']
+    store_path = st.session_state['store_path']
  
     # Load vector store
     collection_name = st.session_state.get('qdrant_collection')
@@ -73,7 +73,7 @@ try:
         st.stop()
 
     qdrant_client = QdrantClient(
-        path="vector_store",
+        path=store_path,
         prefer_grpc=True
     )
 
