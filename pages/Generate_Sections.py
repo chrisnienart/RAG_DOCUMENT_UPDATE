@@ -139,8 +139,31 @@ try:
     # Generation button and logic
     # if st.button("🚀 Generate Section 3.1", type="primary", use_container_width=True):
     st.markdown(
-        "If all prior steps are completed, click the button below to generate Section 3.1 of the report."
+        "If all prior steps are completed, choose a prompt and then click the button below to generate Section 3.1 of the report."
     )
+
+    with st.expander("🧠 What is a prompt?", expanded=False):
+        st.markdown(
+            """
+            **Prompt 1: Section 3.1 Prompt**
+            - Focus on updated data from the uploaded dataset.
+            - Structure the output as a complete sentence.
+            - Use the markdown format from the 2023 report to format tables and figures.
+            - If 'Figure X.X' is referenced, generate a chart using the dataset and render it inline below that reference.
+            - Graphs should appear immediately below reference.
+            """)
+        st.markdown(
+            """
+            **Prompt 2: Section 3.2 Prompt**
+            - Focus on updated data from the uploaded dataset.
+            - Structure the output as a complete sentence.
+            - Use the markdown format from the 2023 report to format tables and figures.
+            - If 'Figure X.X' is referenced, generate a chart using the dataset and render it inline below that reference.
+            - Graphs should appear immediately below reference.
+            """)
+
+    prompt = st.selectbox("Prompt", ["Section 3.1 Prompt", "Section 3.2 Prompt"])
+
     if st.button("🚀 Generate Section 3.1"):
         df = st.session_state.mortality_data
         dataset_summary = df.head(20).to_markdown(index=False)

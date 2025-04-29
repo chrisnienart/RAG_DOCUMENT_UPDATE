@@ -15,6 +15,17 @@ st.markdown(
     You can choose which model to use later on the Generation page.
     """)
 
+# User help information
+with st.expander("🧠 What is an API key?", expanded=False): 
+    st.markdown(
+        """
+        An API key is a unique identifier used to authenticate and authorize 
+        a user, developer, or calling program to an API. \n\n It acts as a secret 
+        token that signifies the connecting API has a defined set of access 
+        rights and is necessary for software applications to send and receive 
+        data or connect one program to another.
+        """)
+    
 # Initialize session state for API keys if not exists
 if "openai_api_key" not in st.session_state:
     st.session_state.openai_api_key = os.getenv("OPENAI_API_KEY", "")
