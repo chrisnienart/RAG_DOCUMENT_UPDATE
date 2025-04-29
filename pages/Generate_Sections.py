@@ -143,37 +143,32 @@ try:
 
     # Generation button and logic
     st.markdown(
-        "If all prior steps are completed, choose a prompt and then click the button below to generate Section 3.1 of the report."
+        "If all prior steps are completed, choose a prompt template and then click the button below to generate Section 3.1 of the report."
     )
 
-    with st.expander("🧠 What is a prompt?", expanded=False):
-        st.markdown(
-            """
-            **Prompt 1: Section 3.1 Prompt**
-            - Focus on updated data from the uploaded dataset.
-            - Structure the output as a complete sentence.
-            - Use the markdown format from the 2023 report to format tables and figures.
-            - If 'Figure X.X' is referenced, generate a chart using the dataset and render it inline below that reference.
-            - Graphs should appear immediately below reference.
-            """)
-        st.markdown(
-            """
-            **Prompt 2: Section 3.2 Prompt**
-            - Focus on updated data from the uploaded dataset.
-            - Structure the output as a complete sentence.
-            - Use the markdown format from the 2023 report to format tables and figures.
-            - If 'Figure X.X' is referenced, generate a chart using the dataset and render it inline below that reference.
-            - Graphs should appear immediately below reference.
-            """)
-
-    prompt = st.selectbox("Prompt", ["Section 3.1 Prompt", "Section 3.2 Prompt"])
+    # Create user-friendly names for the prompt templates
+    prompt_options = {
+        "OpenAI Style": "openai",
+        "Google Style": "google"
+    }
+    
+    selected_prompt_name = st.selectbox(
+        "Prompt Template",
+        options=list(prompt_options.keys())
+    )
+    
+    # Show the selected prompt template
+    selected_template_key = prompt_options[selected_prompt_name]
+    st.markdown("**Selected Prompt Template:**")
+    st.code(prompt_templates[selected_template_key], language="text")
 
     if st.button("🚀 Generate Section 3.1"):
         df = st.session_state.mortality_data
         dataset_summary = df.head(20).to_markdown(index=False)
         # TODO: Refine the query based on the selected prompt from the selectbox
         query = f"""
-Using the uploaded dataset, write Section 3 of the RPEC 2024 report. Place the figure and table at the appropriate location within the narrative.
+Using the uploaded dataset, write Section 3 of the RPEC 2024 report in the {selected_prompt_name} style. 
+Place the figure and table at the appropriate location within the narrative.
 
 Here is the dataset sample:
 {dataset_summary}
