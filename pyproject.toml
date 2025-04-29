@@ -36,7 +36,9 @@ dependencies = [
     "pypdf",
     "pytest",
     "google-generativeai>=0.3.0",
-    "langchain-google-genai>=0.0.11"
+    "langchain-google-genai>=0.0.11",
+    "nltk>=3.8.1",
+    "qdrant-client>=1.6.4"
 ]
 
 [project.optional-dependencies]

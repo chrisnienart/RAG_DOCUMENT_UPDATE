@@ -22,6 +22,8 @@ if "google_api_key" not in st.session_state:
     st.session_state.google_api_key = os.getenv("GOOGLE_API_KEY", "")
 if "openrouter_api_key" not in st.session_state:
     st.session_state.openrouter_api_key = os.getenv("OPENROUTER_API_KEY", "")
+# if "qdrant_api_key" not in st.session_state:
+#     st.session_state.qdrant_api_key = os.getenv("QDRANT_API_KEY", "")
 
 # Informational message about setting API keys
 st.session_state.api_keys = st.session_state.openai_api_key or st.session_state.google_api_key or st.session_state.openrouter_api_key
@@ -109,8 +111,35 @@ if submitted_google:
         st.session_state.google_api_key = ""
         st.error("❌ Google key cleared")
 
+# # Qdrant Row
+# with st.form("qdrant_key_form"):
+#     cols = st.columns([3, 5, 2])
+#     with cols[0]:
+#         st.markdown("**Qdrant API Key**  ")
+#     with cols[1]:
+#         new_qdrant_key = st.text_input(
+#             label=" ",
+#             type="password",
+#             placeholder="Enter Qdrant cloud key...",
+#             key="qdrant_input",
+#             label_visibility="collapsed"
+#         )
+#     with cols[2]:
+#         submitted_qdrant = st.form_submit_button("🔁 Update", use_container_width=True)
+#     cols[1].caption("Cloud keys: [cloud.qdrant.io](https://cloud.qdrant.io)")
+
+# # Handle Qdrant submissions
+# if submitted_qdrant:
+#     if new_qdrant_key:
+#         st.session_state.qdrant_api_key = new_qdrant_key
+#         st.success("✅ Qdrant key updated!")
+#     else:
+#         st.session_state.qdrant_api_key = ""
+#         st.error("❌ Qdrant key cleared")
+
 # Display current key status
 st.markdown("### Current Key Status")
+# status_cols = st.columns(4)
 status_cols = st.columns(3)
 with status_cols[0]:
     if st.session_state.openai_api_key:
@@ -127,6 +156,11 @@ with status_cols[2]:
         st.info("🔐 Google: Key set")
     else:
         st.error("❌ Google: No key set")
+# with status_cols[3]:
+#     if st.session_state.qdrant_api_key:
+#         st.info("🔐 Qdrant: Key set")
+#     else:
+#         st.warning("⚠️ Qdrant: Using local/no key")
 
 
 # Navigation button

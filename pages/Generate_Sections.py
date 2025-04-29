@@ -1,17 +1,16 @@
-# pages/02_Generate_Section.py
 import streamlit as st
 import pandas as pd
 import os
 from dotenv import load_dotenv
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import OpenAIEmbeddings
+from qdrant_client import QdrantClient
+from langchain_community.vectorstores import Qdrant
+from langchain_community.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 import traceback
 import matplotlib.pyplot as plt
 import re
-import tabulate
 import google.generativeai as genai
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -29,38 +28,15 @@ if not (openai_api_key or openrouter_api_key or google_api_key):
     st.error("⚠️ No API key found! Please set at least one API key (OpenAI/OpenRouter/Google) in the API Keys page.")
     st.stop()
 
-# Embedding model load
-try:
-    with open("vector_store/embedding_model.txt", "r") as f:
-        st.session_state['embedding_model'] = f.read().strip()
-except Exception as e:
-    st.error("❌ Failed to load embedding model name. Please build a vector store first.")
+# Embedding model check
+if 'embedding_model' not in st.session_state:
+    st.error("⚠️ No embedding model found! Please build a vector store first.")
     st.stop()
-    
+
 # Dataset check
 if 'mortality_data' not in st.session_state:
     st.error("⚠️ No dataset found! Please upload your mortality data first.")
     st.stop()
-
-# # Model Configuration Section
-# st.header("⚙️ Model Settings")
-# with st.container(border=True):
-#     st.markdown("### 🧩 Configuration Parameters")
-    
-#     col1, col2 = st.columns(2)
-#     with col1:
-#         st.session_state['model_k'] = st.slider("🔍 Top K Chunks to Retrieve", 5, 50, 20)
-#         st.session_state['temperature'] = st.slider("🌡️ Temperature (Creativity)", 0.0, 1.0, 0.2)
-    
-#     with col2:
-#         st.session_state['model_name'] = st.selectbox("🧠 LLM Model", ["gpt-4-turbo", "gpt-3.5-turbo"])
-#         try:
-#             with open("vector_store/embedding_model.txt", "r") as f:
-#                 st.session_state['embedding_model'] = f.read().strip()
-#             st.markdown(f"**Embedding Model:** `{st.session_state['embedding_model']}`")
-#         except Exception as e:
-#             st.error("❌ Failed to load embedding model name.")
-#             st.stop()
 
 # Generation Section
 try:
@@ -69,10 +45,50 @@ try:
     model_name = st.session_state['model_name']
     temperature = st.session_state['temperature']
     embedding_model = st.session_state['embedding_model']
-
+    store_path = st.session_state['store_path']
+ 
     # Load vector store
-    embeddings = OpenAIEmbeddings(model=embedding_model, openai_api_key=openai_api_key)
-    vectorstore = FAISS.load_local("vector_store", embeddings, allow_dangerous_deserialization=True)
+    collection_name = st.session_state.get('qdrant_collection')
+    if not collection_name:
+        st.error("⚠️ No Qdrant collection found! Please build a vector store first.")
+        st.stop()
+
+    if "text-embedding" in embedding_model:
+        if not openai_api_key:
+            st.error("⚠️ OpenAI API key required for OpenAI embeddings!")
+            st.stop()
+        embeddings = OpenAIEmbeddings(
+            model=embedding_model,
+            openai_api_key=openai_api_key
+        )
+    else:  # Hugging Face case
+        embeddings = HuggingFaceEmbeddings(
+            model_name=embedding_model
+        )
+
+    try:
+        embeddings.embed_query("test")  # Verify embeddings work
+    except Exception as e:
+        st.error(f"❌ Failed to initialize embeddings: {e}")
+        st.stop()
+
+    qdrant_client = QdrantClient(
+        path=store_path,
+        prefer_grpc=True
+    )
+
+    # Verify collection exists
+    try:
+        qdrant_client.get_collection(collection_name)
+    except Exception:
+        st.error(f"❌ Collection '{collection_name}' not found in vector_store directory")
+        st.stop()
+
+    vectorstore = Qdrant(
+        client=qdrant_client,
+        collection_name=collection_name,
+        embeddings=embeddings
+    )
     retriever = vectorstore.as_retriever(search_kwargs={"k": k})
 
     # Initialize LLM components

@@ -1,11 +1,5 @@
 import streamlit as st
 import pandas as pd
-from dotenv import load_dotenv
-import os
-
-# Load environment
-load_dotenv()
-openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
 
 # Page config
 st.set_page_config(page_title="Upload Dataset - RPEC", layout="wide")
