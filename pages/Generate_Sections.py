@@ -146,6 +146,14 @@ try:
         "If all prior steps are completed, choose a prompt template and then click the button below to generate Section 3.1 of the report."
     )
 
+    with st.expander("🧠 What is a prompt?", expanded=False):
+        st.markdown(
+            """
+            A prompt is a string of text that guides the model to generate a response. 
+            It can be a question, a statement, or a combination of both. The model uses the prompt 
+            to understand the context and generate a relevant response.
+            """)
+
     # Create user-friendly names for the prompt templates
     prompt_options = {
         "OpenAI Style": "openai",
@@ -159,7 +167,7 @@ try:
     
     # Show the selected prompt template
     selected_template_key = prompt_options[selected_prompt_name]
-    st.markdown("**Selected Prompt Template:**")
+    st.markdown("**Selected Prompt Text**")
     st.code(prompt_templates[selected_template_key], language="text")
 
     if st.button("🚀 Generate Section 3.1"):
