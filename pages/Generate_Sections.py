@@ -136,8 +136,8 @@ try:
         st.markdown(
             """
             A prompt is a string of text that guides the model to generate a response. 
-            It can be a question, a statement, or a combination of both. The model uses the prompt 
-            to understand the context and generate a relevant response.
+            It can be a question, a statement, or a combination of both. \n\n 
+            The model uses the prompt to understand the context and generate a relevant response.
             """)
 
     # Create user-friendly names for the prompt templates
@@ -153,7 +153,7 @@ try:
     
     # Show the selected prompt template with edit option
     selected_template_key = prompt_options[selected_prompt_name]
-    st.markdown("**Selected Prompt Template**")
+    st.markdown("**Selected Prompt**")
     
     # Store prompt in session state
     if 'prompt' not in st.session_state:
@@ -168,9 +168,13 @@ try:
     prompt = st.text_area(
         "Edit the prompt template (changes will be used for generation):",
         value=st.session_state.prompt,
-        height=200
+        height=250
     )
-    st.session_state.prompt = prompt
+    if(prompt != prompt_templates[selected_template_key]):
+        st.session_state.prompt = prompt
+        st.success(" ✅ Prompt text edited")
+    else:
+        st.info("Using default prompt template")
 
     prompt_template = PromptTemplate(
         input_variables=["context", "question"],
