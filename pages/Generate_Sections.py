@@ -127,20 +127,6 @@ try:
         )
         template_key = "google"
 
-    prompt_template = PromptTemplate(
-        input_variables=["context", "question"],
-        template=prompt_templates[template_key]
-    )
-
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=False,
-        chain_type_kwargs={"prompt": prompt_template},
-        input_key="question"
-    )
-
     # Generation button and logic
     st.markdown(
         "If all prior steps are completed, choose a prompt template and then click the button below to generate Section 3.1 of the report."
@@ -165,15 +151,44 @@ try:
         options=list(prompt_options.keys())
     )
     
-    # Show the selected prompt template
+    # Show the selected prompt template with edit option
     selected_template_key = prompt_options[selected_prompt_name]
-    st.markdown("**Selected Prompt Text**")
-    st.code(prompt_templates[selected_template_key], language="text")
+    st.markdown("**Selected Prompt Template**")
+    
+    # Store prompt in session state
+    if 'prompt' not in st.session_state:
+        st.session_state.prompt = prompt_templates[selected_template_key]
+    
+    # Update prompt when template changes
+    if st.session_state.get('last_template_key') != selected_template_key:
+        st.session_state.prompt = prompt_templates[selected_template_key]
+        st.session_state.last_template_key = selected_template_key
+    
+    # Text area for editing the prompt
+    prompt = st.text_area(
+        "Edit the prompt template (changes will be used for generation):",
+        value=st.session_state.prompt,
+        height=200
+    )
+    st.session_state.prompt = prompt
+
+    prompt_template = PromptTemplate(
+        input_variables=["context", "question"],
+        template=st.session_state.prompt
+    )
+    
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=retriever,
+        return_source_documents=False,
+        chain_type_kwargs={"prompt": prompt_template},
+        input_key="question"
+    )
 
     if st.button("🚀 Generate Section 3.1"):
         df = st.session_state.mortality_data
         dataset_summary = df.head(20).to_markdown(index=False)
-        # TODO: Refine the query based on the selected prompt from the selectbox
         query = f"""
 Using the uploaded dataset, write Section 3 of the RPEC 2024 report in the {selected_prompt_name} style. 
 Place the figure and table at the appropriate location within the narrative.
@@ -196,7 +211,6 @@ Here is the dataset sample:
 
             st.markdown(pre_fig)
             try:
-                # TODO: Dynamically load figure data based on fig_id if possible
                 fig_df = pd.read_csv("data/FIG_3_1.csv")
                 fig, ax = plt.subplots()
                 ax.plot(fig_df["Year"], fig_df["Rate"], marker="o")
