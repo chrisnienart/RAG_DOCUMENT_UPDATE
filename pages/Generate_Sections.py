@@ -98,16 +98,14 @@ try:
             "Use the provided context and dataset to generate a response in the same style and structure "
             "as Section 3 of the 2023 RPEC Report. Focus only on updated data from the uploaded dataset.\n\n"
             "Use the markdown format from the 2023 report to format tables and figures. If 'Figure X.X' is referenced, "
-            "generate a chart using the dataset and render it inline below that reference. Graphs should appear immediately below reference.\n\n"
-            "Context:\n{context}\n\nQuestion:\n{question}"
+            "generate a chart using the dataset and render it inline below that reference. Graphs should appear immediately below reference."
         ),
         "google": (
             "You are a professional actuarial report writer. Based on the context from previous reports and a provided dataset, "
             "generate a fully written markdown document for Section 3.1 of the SOA RPEC 2024 Report. "
             "The tone should be formal, structured, and human-written. DO NOT include Python code or placeholders like '[Insert table]'. "
             "Instead, describe the data as if it were already in the report. "
-            "Structure your response exactly like a completed report section.\n\n"
-            "Context:\n{context}\n\nQuestion:\n{question}"
+            "Structure your response exactly like a completed report section."
         )
     }
 
@@ -178,7 +176,7 @@ try:
 
     prompt_template = PromptTemplate(
         input_variables=["context", "question"],
-        template=st.session_state.prompt
+        template=f"{st.session_state.prompt}\n\nContext:\n{{context}}\n\nQuestion:\n{{question}}"
     )
     
     qa_chain = RetrievalQA.from_chain_type(
