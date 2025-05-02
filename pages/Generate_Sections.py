@@ -106,6 +106,14 @@ try:
             "The tone should be formal, structured, and human-written. DO NOT include Python code or placeholders like '[Insert table]'. "
             "Instead, describe the data as if it were already in the report. "
             "Structure your response exactly like a completed report section."
+        ),
+        "weak": (
+            "Write something about mortality data. "
+            "Include some numbers and trends from the dataset."
+        ),
+        "poor": (
+            "Talk about the data. "
+            "Mention any interesting patterns you see."
         )
     }
 
@@ -141,7 +149,9 @@ try:
     # Create user-friendly names for the prompt templates
     prompt_options = {
         "OpenAI Style": "openai",
-        "Google Style": "google"
+        "Google Style": "google",
+        "Weak Prompt": "weak",
+        "Poor Prompt": "poor"
     }
     
     selected_prompt_name = st.selectbox(
