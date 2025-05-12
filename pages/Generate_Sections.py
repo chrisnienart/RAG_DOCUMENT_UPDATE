@@ -102,7 +102,7 @@ try:
         ),
         "google": (
             "You are a professional actuarial report writer. Based on the context from previous reports and a provided dataset, "
-            "generate a fully written markdown document for Section 3.1 of the SOA RPEC 2024 Report. "
+            "generate a fully written markdown document for the Pandemic Mortality Section of the SOA RPEC 2024 Report. "
             "The tone should be formal, structured, and human-written. DO NOT include Python code or placeholders like '[Insert table]'. "
             "Instead, describe the data as if it were already in the report. "
             "Structure your response exactly like a completed report section."
@@ -135,7 +135,7 @@ try:
 
     # Generation button and logic
     st.markdown(
-        "If all prior steps are completed, choose a prompt template and then click the button below to generate Section 3.1 of the report."
+        "If all prior steps are completed, choose a prompt template and then click the button below to generate the Pandemic Mortality Section of the report."
     )
 
     with st.expander("🧠 What is a prompt?", expanded=False):
@@ -204,7 +204,7 @@ try:
         input_key="question"
     )
 
-    if st.button("🚀 Generate Section 3.1"):
+    if st.button("🚀 Generate Pandemic Mortality Section"):
         df = st.session_state.mortality_data
         dataset_summary = df.head(20).to_markdown(index=False)
         query = f"""
