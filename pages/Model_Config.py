@@ -39,9 +39,31 @@ with st.expander("🧠 How to pick an LLM and hyper parameters", expanded=False)
     
 # Model parameters
 st.markdown("### 🧩 Model Settings")
-st.session_state['model_name'] = st.selectbox("🧠 LLM Model", ["gpt-4.1-mini", "gpt-4-turbo", "gpt-3.5-turbo","gemini-1.5-pro"])
-st.session_state['model_k'] = st.slider("🔍 Top K Chunks to Retrieve", 5, 50, 20)
-st.session_state['temperature'] = st.slider("🌡️ Temperature (Creativity)", 0.0, 1.0, 0.2)
+
+# Initialize model parameters with defaults if not set
+if 'model_name' not in st.session_state:
+    st.session_state.model_name = "gpt-4-turbo"
+if 'model_k' not in st.session_state:
+    st.session_state.model_k = 20
+if 'temperature' not in st.session_state:
+    st.session_state.temperature = 0.2
+
+# Create widgets with current session state values
+st.session_state['model_name'] = st.selectbox(
+    "🧠 LLM Model", 
+    ["gpt-4.1-mini", "gpt-4-turbo", "gpt-3.5-turbo","gemini-1.5-pro"],
+    index=["gpt-4.1-mini", "gpt-4-turbo", "gpt-3.5-turbo","gemini-1.5-pro"].index(st.session_state.model_name)
+)
+st.session_state['model_k'] = st.slider(
+    "🔍 Top K Chunks to Retrieve", 
+    5, 50, 
+    value=st.session_state.model_k
+)
+st.session_state['temperature'] = st.slider(
+    "🌡️ Temperature (Creativity)", 
+    0.0, 1.0, 
+    value=st.session_state.temperature
+)
 
 # Navigation button
 st.divider()
