@@ -159,40 +159,47 @@ try:
         options=list(prompt_options.keys())
     )
     
-    # Show the selected prompt template with edit option
+    # Store prompts in session state using template keys
     selected_template_key = prompt_options[selected_prompt_name]
+    if 'prompt_templates_edited' not in st.session_state:
+        st.session_state.prompt_templates_edited = {}
     
-    # Store prompt in session state
-    if 'prompt' not in st.session_state:
-        st.session_state.prompt = prompt_templates[selected_template_key]
-    
-    # Update prompt when template changes
-    if st.session_state.get('last_template_key') != selected_template_key:
-        st.session_state.prompt = prompt_templates[selected_template_key]
-        st.session_state.last_template_key = selected_template_key
+    # Initialize or retrieve edited prompt
+    current_prompt = st.session_state.prompt_templates_edited.get(
+        selected_template_key,
+        prompt_templates[selected_template_key]
+    )
     
     # Expandable text area for editing the prompt
     with st.expander("✏️ Edit Prompt Template", expanded=True):
         # Calculate height based on number of lines in prompt
-        line_count = len(st.session_state.prompt.split('\n'))
-        height = min(max(100, (line_count + 3) * 20), 500)  # Between 100-500px based on content
+        line_count = len(current_prompt.split('\n'))
+        height = min(max(100, (line_count + 3) * 20), 500)
         
-        prompt = st.text_area(
+        edited_prompt = st.text_area(
             "Edit the prompt template below:",
-            value=st.session_state.prompt,
+            value=current_prompt,
             height=height,
+            key=f"prompt_editor_{selected_template_key}",
             label_visibility="collapsed"
         )
         
-        if prompt != prompt_templates[selected_template_key]:
-            st.session_state.prompt = prompt
+        # Store edited version if different from default
+        if edited_prompt != prompt_templates[selected_template_key]:
+            st.session_state.prompt_templates_edited[selected_template_key] = edited_prompt
             st.success("✅ Using edited prompt template")
-        else:
-            st.info("ℹ️ Using default prompt template")
-
+        elif selected_template_key in st.session_state.prompt_templates_edited:
+            del st.session_state.prompt_templates_edited[selected_template_key]
+    
+    # Use either edited or default prompt
+    final_prompt = st.session_state.prompt_templates_edited.get(
+        selected_template_key,
+        prompt_templates[selected_template_key]
+    )
+    
     prompt_template = PromptTemplate(
         input_variables=["context", "question"],
-        template=f"{st.session_state.prompt}\n\nContext:\n{{context}}\n\nQuestion:\n{{question}}"
+        template=f"{final_prompt}\n\nContext:\n{{context}}\n\nQuestion:\n{{question}}"
     )
     
     qa_chain = RetrievalQA.from_chain_type(
