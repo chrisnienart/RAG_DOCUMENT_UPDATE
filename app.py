@@ -7,7 +7,7 @@ def main():
         st.Page("pages/Vector_Store.py", title = "Create Vector Store"),
         st.Page("pages/Upload_Dataset.py", title = "Upload Mortality Data"),
         st.Page("pages/Model_Config.py", title = "Model Configuration"),
-        st.Page("pages/Generate_Sections.py", title = "Generate Section 3.1"),
+        st.Page("pages/Generate_Sections.py", title = "Generate Sections"),
         st.Page("pages/Settings.py", title = "Settings"),
     ]
     

@@ -3,7 +3,7 @@ import streamlit as st
 # Page config
 st.set_page_config(page_title="Model Config - RPEC", layout="wide")
 st.title("⚙️ Model Configuration")
-st.markdown("Configure the model and hyperparameters for Section 3.1 generation")
+st.markdown("Configure the model and hyperparameters for the Pandemic Mortality Section generation")
 
 # Embedding model check
 if 'embedding_model' not in st.session_state:

@@ -67,7 +67,7 @@ st.markdown(
 - **Vector Store**: Build a vector store with configurable hyperparameters for downstream retrieval.
 - **Mortality Data**: Upload an annual mortality dataset that will be used in the Pandemic Mortality Section from the report using the vector store. 
 - **Model Configuration**: Configure the model and set hyperparameters that shape the generation process.
-- **Generate Pandemic Mortality Section**: After configuring the model, generate the mortality analysis section.
+- **Generate Sections**: After configuring the model, generate the mortality analysis section.
 
 > ⚠️ Tip: Try regenerating the Pandemic Mortality Section after changing the model settings to see how the output changes.
 """)

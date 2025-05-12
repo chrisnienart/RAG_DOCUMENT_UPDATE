@@ -4,7 +4,7 @@ import pandas as pd
 # Page config
 st.set_page_config(page_title="Upload Dataset - RPEC", layout="wide")
 st.title("📤 Upload Mortality Dataset")
-st.markdown("Upload the dataset needed for Section 3.1 generation")
+st.markdown("Upload the dataset needed for Pandemic Mortality Section generation.")
 
 # User help information
 with st.expander("🧠 How to create synthetic data", expanded=False): 
