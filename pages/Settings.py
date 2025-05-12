@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("Settings")
+st.title("☰ Settings")
 
 # Initialize session state for show_api_keys if not exists
 if "show_api_keys" not in st.session_state:
