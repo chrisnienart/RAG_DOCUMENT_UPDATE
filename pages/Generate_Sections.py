@@ -208,7 +208,10 @@ try:
     if 'generated_content' not in st.session_state:
         st.session_state.generated_content = None
 
-    if st.button("🚀 Generate Pandemic Mortality Section"):
+    # Changed button label and moved generation logic
+    button_label = "Regenerate Pandemic Mortality Section" if st.session_state.generated_content else "Generate Pandemic Mortality Section"
+    
+    if st.button(f"🚀 {button_label}"):
         df = st.session_state.mortality_data
         dataset_summary = df.head(20).to_markdown(index=False)
         query = f"""
@@ -219,14 +222,18 @@ Here is the dataset sample:
 {dataset_summary}
 """
         result = qa_chain({"question": query})
-        section_text = result["result"]
-        st.session_state.generated_content = section_text
+        st.session_state.generated_content = result["result"]
+        st.rerun()  # Refresh to show updated content
 
-        # Figure rendering logic
+    # Display existing content if available
+    if st.session_state.generated_content:
+        st.subheader("Generated Content")
+        section_text = st.session_state.generated_content
+        
+        # Existing figure rendering logic
         pattern = r"(Figure\s+(\d+\.\d+)\s*[:\-–—]\s*(.*?)(\n|$))"
         match = re.search(pattern, section_text, re.IGNORECASE)
-
-        st.subheader("Generated Content")
+        
         if match:
             fig_full, fig_id, fig_desc, _ = match.groups()
             pre_fig = section_text[:match.end()]
@@ -250,15 +257,14 @@ Here is the dataset sample:
         else:
             st.markdown(section_text)
 
-        # Add download button after generation
-        if st.session_state.generated_content:
-            st.download_button(
-                label="💾 Save Generated Content",
-                data=st.session_state.generated_content,
-                file_name="RPEC_2024_Section3.md",
-                mime="text/markdown",
-                help="Save the generated content as a Markdown file"
-            )
+        # Keep download button visible
+        st.download_button(
+            label="💾 Save Generated Content",
+            data=st.session_state.generated_content,
+            file_name="RPEC_2024_Section3.md",
+            mime="text/markdown",
+            help="Save the generated content as a Markdown file"
+        )
 
 except Exception as e:
     st.error(f"❌ Initialization error: {e}")
