@@ -204,6 +204,10 @@ try:
         input_key="question"
     )
 
+    # Save generated content to session state
+    if 'generated_content' not in st.session_state:
+        st.session_state.generated_content = None
+
     if st.button("🚀 Generate Pandemic Mortality Section"):
         df = st.session_state.mortality_data
         dataset_summary = df.head(20).to_markdown(index=False)
@@ -216,6 +220,7 @@ Here is the dataset sample:
 """
         result = qa_chain({"question": query})
         section_text = result["result"]
+        st.session_state.generated_content = section_text
 
         # Figure rendering logic
         pattern = r"(Figure\s+(\d+\.\d+)\s*[:\-–—]\s*(.*?)(\n|$))"
@@ -244,6 +249,16 @@ Here is the dataset sample:
             st.markdown(post_fig)
         else:
             st.markdown(section_text)
+
+        # Add download button after generation
+        if st.session_state.generated_content:
+            st.download_button(
+                label="💾 Save Generated Content",
+                data=st.session_state.generated_content,
+                file_name="RPEC_2024_Section3.md",
+                mime="text/markdown",
+                help="Save the generated content as a Markdown file"
+            )
 
 except Exception as e:
     st.error(f"❌ Initialization error: {e}")
