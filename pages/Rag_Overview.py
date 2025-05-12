@@ -65,9 +65,9 @@ st.markdown(
 ### 📂 App Structure
 - **Set API Keys**: Set your OpenAI API key or Google API key to run this project.
 - **Vector Store**: Build a vector store with configurable hyperparameters for downstream retrieval.
-- **Mortality Data**: Upload an annual mortality dataset that will be used in Section 3.1 from the report using the vector store. 
+- **Mortality Data**: Upload an annual mortality dataset that will be used in the Pandemic Mortality Section from the report using the vector store. 
 - **Model Configuration**: Configure the model and set hyperparameters that shape the generation process.
-- **Generate Section 3.1**: After configuring the model, generate the mortality analysis section.
+- **Generate Pandemic Mortality Section**: After configuring the model, generate the mortality analysis section.
 
-> ⚠️ Tip: Try regenerating Section 3.1 after changing the model settings to see how the output changes.
+> ⚠️ Tip: Try regenerating the Pandemic Mortality Section after changing the model settings to see how the output changes.
 """)
