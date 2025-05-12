@@ -154,9 +154,17 @@ try:
         "Poor Prompt": "poor"
     }
     
+    # Initialize or get last selected prompt from session state
+    if 'last_selected_prompt' not in st.session_state:
+        st.session_state.last_selected_prompt = "OpenAI Style"
+    
     selected_prompt_name = st.selectbox(
         "Prompt Template",
-        options=list(prompt_options.keys())
+        options=list(prompt_options.keys()),
+        index=list(prompt_options.keys()).index(st.session_state.last_selected_prompt))
+    
+    # Store current selection in session state
+    st.session_state.last_selected_prompt = selected_prompt_name
     )
     
     # Store prompts in session state using template keys
