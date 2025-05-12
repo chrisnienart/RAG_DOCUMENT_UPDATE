@@ -49,12 +49,16 @@ Below is a quick summary of the key RAG components you can tune throughout the a
 | `embedding_source`   | Source for embeddings (e.g., OpenAI or Hugging Face). |
 | `embedding_model`    | Which model to use for creating document embeddings. |
 
-#### **Section Generator (Generate Section Tab)**
+#### **Model Configuration**
 | Hyperparameter       | Description                                                                 |
 |----------------------|-----------------------------------------------------------------------------|
 | `llm_model_name`     | Which GPT model to use for generation (`gpt-4-turbo`, `gpt-3.5-turbo`, etc.). |
 | `k` (top-k retrieval)| Number of relevant chunks to pull from the vector store (higher = more context). |
 | `temperature`        | Controls randomness of output (lower = more factual, higher = more diverse). |
+
+#### **Generation**
+| Hyperparameter       | Description                                                                 |
+|----------------------|-----------------------------------------------------------------------------|
 | `prompt_template`    | The system prompt structure (can be edited for consistent tone).           |
 
 ---
