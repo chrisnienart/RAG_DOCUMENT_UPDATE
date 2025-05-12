@@ -40,7 +40,7 @@ st.markdown(
 ### 🔧 Hyperparameters You Can Control
 Below is a quick summary of the key RAG components you can tune throughout the app:
 
-#### **RAG Builder (Vector Store Tab)**
+#### **Vector Store**
 | Hyperparameter       | Description                                                                 |
 |----------------------|-----------------------------------------------------------------------------|
 | `chunk_size`         | How large each document chunk is before embedding. Affects recall vs. precision. |
