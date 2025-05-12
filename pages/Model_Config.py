@@ -40,9 +40,12 @@ with st.expander("🧠 How to pick an LLM and hyper parameters", expanded=False)
 # Model parameters
 st.markdown("### 🧩 Model Settings")
 
+# Available models list
+MODELS = ["gpt-4.1-mini", "gpt-4-turbo", "gpt-3.5-turbo", "gemini-1.5-pro"]
+
 # Initialize model parameters with defaults if not set
 if 'model_name' not in st.session_state:
-    st.session_state.model_name = "gpt-4-turbo"
+    st.session_state.model_name = MODELS[0]  # First model is default
 if 'model_k' not in st.session_state:
     st.session_state.model_k = 20
 if 'temperature' not in st.session_state:
@@ -51,8 +54,8 @@ if 'temperature' not in st.session_state:
 # Create widgets with current session state values
 st.session_state['model_name'] = st.selectbox(
     "🧠 LLM Model", 
-    ["gpt-4.1-mini", "gpt-4-turbo", "gpt-3.5-turbo","gemini-1.5-pro"],
-    index=["gpt-4.1-mini", "gpt-4-turbo", "gpt-3.5-turbo","gemini-1.5-pro"].index(st.session_state.model_name)
+    MODELS,
+    index=MODELS.index(st.session_state.model_name)
 )
 st.session_state['model_k'] = st.slider(
     "🔍 Top K Chunks to Retrieve", 
