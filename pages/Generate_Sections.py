@@ -161,7 +161,6 @@ try:
     
     # Show the selected prompt template with edit option
     selected_template_key = prompt_options[selected_prompt_name]
-    st.markdown("**Selected Prompt**")
     
     # Store prompt in session state
     if 'prompt' not in st.session_state:
@@ -172,17 +171,24 @@ try:
         st.session_state.prompt = prompt_templates[selected_template_key]
         st.session_state.last_template_key = selected_template_key
     
-    # Text area for editing the prompt
-    prompt = st.text_area(
-        "Edit the prompt template (changes will be used for generation):",
-        value=st.session_state.prompt,
-        height=250
-    )
-    if(prompt != prompt_templates[selected_template_key]):
-        st.session_state.prompt = prompt
-        st.success(" ✅ Prompt text edited")
-    else:
-        st.info("Using default prompt template")
+    # Expandable text area for editing the prompt
+    with st.expander("✏️ Edit Prompt Template", expanded=True):
+        # Calculate height based on number of lines in prompt
+        line_count = len(st.session_state.prompt.split('\n'))
+        height = min(max(100, line_count * 20), 500)  # Between 100-500px based on content
+        
+        prompt = st.text_area(
+            "Edit the prompt template below:",
+            value=st.session_state.prompt,
+            height=height,
+            label_visibility="collapsed"
+        )
+        
+        if prompt != prompt_templates[selected_template_key]:
+            st.session_state.prompt = prompt
+            st.success("✅ Using edited prompt template")
+        else:
+            st.info("ℹ️ Using default prompt template")
 
     prompt_template = PromptTemplate(
         input_variables=["context", "question"],
