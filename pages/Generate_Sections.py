@@ -175,7 +175,7 @@ try:
     with st.expander("✏️ Edit Prompt Template", expanded=True):
         # Calculate height based on number of lines in prompt
         line_count = len(st.session_state.prompt.split('\n'))
-        height = min(max(100, line_count * 20), 500)  # Between 100-500px based on content
+        height = min(max(100, (line_count + 3) * 20), 500)  # Between 100-500px based on content
         
         prompt = st.text_area(
             "Edit the prompt template below:",
