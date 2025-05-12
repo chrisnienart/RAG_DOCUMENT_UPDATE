@@ -45,16 +45,17 @@ Below is a quick summary of the key RAG components you can tune throughout the a
 |----------------------|-----------------------------------------------------------------------------|
 | `chunk_size`         | How large each document chunk is before embedding. Affects recall vs. precision. |
 | `chunk_overlap`      | Overlap between chunks to preserve context continuity.                        |
-| `embedding_model`    | Which model to use for creating document embeddings (`text-embedding-3-small` vs. `large`). |
-| `vectorstore_name`   | Name for storing the built vector store (can swap different versions later).  |
+| `text_splitter_type` | Type of text splitter to use (e.g., Sentence-aware (NLTK) or Character-based (Recursive)). |
+| `embedding_source`   | Source for embeddings (e.g., OpenAI or Hugging Face). |
+| `embedding_model`    | Which model to use for creating document embeddings. |
 
 #### **Section Generator (Generate Section Tab)**
 | Hyperparameter       | Description                                                                 |
 |----------------------|-----------------------------------------------------------------------------|
-| `k` (top-k retrieval)| Number of relevant chunks to pull from the vector store (higher = more context). |
 | `llm_model_name`     | Which GPT model to use for generation (`gpt-4-turbo`, `gpt-3.5-turbo`, etc.). |
+| `k` (top-k retrieval)| Number of relevant chunks to pull from the vector store (higher = more context). |
 | `temperature`        | Controls randomness of output (lower = more factual, higher = more diverse). |
-| `prompt_template`    | The system prompt structure (currently fixed for consistent tone).           |
+| `prompt_template`    | The system prompt structure (can be edited for consistent tone).           |
 
 ---
 """)
