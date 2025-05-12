@@ -9,14 +9,14 @@ st.set_page_config(
     menu_items=None 
 )
 
-st.title("📘 RPEC 2024 Mortality Dashboard")
+st.title("📘 RPEC Annual Mortality Dashboard")
 
 st.markdown("""
-Welcome to the **RPEC 2024 Mortality Dashboard**, a dynamic tool powered by AI to help actuaries and analysts generate narrative sections of the SOA's Retirement Plans Experience Committee (RPEC) report.
+Welcome to the **RPEC Annual Mortality Dashboard**, a dynamic tool powered by AI to help actuaries and analysts generate narrative sections of the SOA's Retirement Plans Experience Committee (RPEC) report.
 
 This application uses **RAG (Retrieval-Augmented Generation)** techniques with **LangChain** and **OpenAI** models to synthesize structured insights from:
 - Prior RPEC PDF reports (embedded in a vector store)
-- A synthetic dataset of mortality metrics for 2024
+- A synthetic dataset of mortality metrics for the year
 
 ---
 """)
@@ -63,7 +63,7 @@ st.markdown(
 ### 📂 App Structure
 - **Set API Keys**: Set your OpenAI API key or Google API key to run this project.
 - **Vector Store**: Build a vector store with configurable hyperparameters for downstream retrieval.
-- **Mortality Data**: Upload a 2024 mortality dataset that will be used in Section 3.1 from the report using the vector store. 
+- **Mortality Data**: Upload an annual mortality dataset that will be used in Section 3.1 from the report using the vector store. 
 - **Model Configuration**: Configure the model and set hyperparameters that shape the generation process.
 - **Generate Section 3.1**: After configuring the model, generate the mortality analysis section.
 
