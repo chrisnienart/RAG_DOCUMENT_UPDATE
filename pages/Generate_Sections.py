@@ -16,7 +16,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Page config
 st.set_page_config(page_title="Generate Section - RPEC", layout="wide")
-st.title("🚀 Generate Section 3.1")
+st.title("🚀 Generate Pandemic Mortality Section")
 
 # Load environment and checks
 load_dotenv()
