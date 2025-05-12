@@ -165,7 +165,6 @@ try:
     
     # Store current selection in session state
     st.session_state.last_selected_prompt = selected_prompt_name
-    )
     
     # Store prompts in session state using template keys
     selected_template_key = prompt_options[selected_prompt_name]
