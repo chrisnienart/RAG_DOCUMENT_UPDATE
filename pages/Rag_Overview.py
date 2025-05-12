@@ -19,7 +19,10 @@ This application uses **RAG (Retrieval-Augmented Generation)** techniques with *
 - A synthetic dataset of mortality metrics for 2024
 
 ---
+""")
 
+st.markdown(
+"""
 ### 🧠 What is RAG (Retrieval-Augmented Generation)?
 RAG enhances Large Language Models (LLMs) by allowing them to retrieve relevant knowledge from external sources before generating responses. This is critical for:
 - Citing accurate information from proprietary or domain-specific documents
@@ -28,7 +31,10 @@ RAG enhances Large Language Models (LLMs) by allowing them to retrieve relevant 
 We use **LangChain**, a powerful Python framework for building RAG workflows. It connects document loaders, embeddings, retrievers, LLMs, and outputs.
 
 ---
+""")    
 
+st.markdown(
+"""
 ### 🔧 Hyperparameters You Can Control
 Below is a quick summary of the key RAG components you can tune throughout the app:
 
@@ -49,6 +55,10 @@ Below is a quick summary of the key RAG components you can tune throughout the a
 | `prompt_template`    | The system prompt structure (currently fixed for consistent tone).           |
 
 ---
+""")
+
+st.markdown(
+"""
 
 ### 📂 App Structure
 - **Set API Keys**: Set your OpenAI API key or Google API key to run this project.
