@@ -1,5 +1,24 @@
 import streamlit as st
 
+# Define dictionaries for hyperparameters
+vector_store_params = {
+    "chunk_size": "How large each document chunk is before embedding. Affects recall vs. precision.",
+    "chunk_overlap": "Overlap between chunks to preserve context continuity.",
+    "text_splitter_type": "Type of text splitter to use (e.g., Sentence-aware (NLTK) or Character-based (Recursive)).",
+    "embedding_source": "Source for embeddings (e.g., OpenAI or Hugging Face).",
+    "embedding_model": "Which model to use for creating document embeddings."
+}
+
+model_config_params = {
+    "llm_model_name": "Which GPT model to use for generation (`gpt-4-turbo`, `gpt-3.5-turbo`, etc.).",
+    "k (top-k retrieval)": "Number of relevant chunks to pull from the vector store (higher = more context).",
+    "temperature": "Controls randomness of output (lower = more factual, higher = more diverse)."
+}
+
+generation_params = {
+    "prompt_template": "The system prompt structure (can be edited for consistent tone)."
+}
+
 # Must be the first Streamlit command
 st.set_page_config(
     page_title="RPEC Annual Mortality Dashboard",
@@ -41,25 +60,25 @@ st.markdown(
 Below is a quick summary of the key RAG components you can tune throughout the app:
 
 #### **Vector Store**
-| Hyperparameter       | Description                                                                 |
-|----------------------|-----------------------------------------------------------------------------|
-| `chunk_size`         | How large each document chunk is before embedding. Affects recall vs. precision. |
-| `chunk_overlap`      | Overlap between chunks to preserve context continuity.                        |
-| `text_splitter_type` | Type of text splitter to use (e.g., Sentence-aware (NLTK) or Character-based (Recursive)). |
-| `embedding_source`   | Source for embeddings (e.g., OpenAI or Hugging Face). |
-| `embedding_model`    | Which model to use for creating document embeddings. |
+""" + 
+("| Hyperparameter       | Description                                                                 |\n" +
+"|----------------------|-----------------------------------------------------------------------------|\n" + 
+"\n".join([f"| `{key}` | {value} |" for key, value in vector_store_params.items()])) + 
+"""
 
 #### **Model Configuration**
-| Hyperparameter       | Description                                                                 |
-|----------------------|-----------------------------------------------------------------------------|
-| `llm_model_name`     | Which GPT model to use for generation (`gpt-4-turbo`, `gpt-3.5-turbo`, etc.). |
-| `k` (top-k retrieval)| Number of relevant chunks to pull from the vector store (higher = more context). |
-| `temperature`        | Controls randomness of output (lower = more factual, higher = more diverse). |
+""" + 
+("| Hyperparameter       | Description                                                                 |\n" +
+"|----------------------|-----------------------------------------------------------------------------|\n" + 
+"\n".join([f"| `{key}` | {value} |" for key, value in model_config_params.items()])) + 
+"""
 
 #### **Generation**
-| Hyperparameter       | Description                                                                 |
-|----------------------|-----------------------------------------------------------------------------|
-| `prompt_template`    | The system prompt structure (can be edited for consistent tone).           |
+""" + 
+("| Hyperparameter       | Description                                                                 |\n" +
+"|----------------------|-----------------------------------------------------------------------------|\n" + 
+"\n".join([f"| `{key}` | {value} |" for key, value in generation_params.items()])) + 
+"""
 
 ---
 """)
