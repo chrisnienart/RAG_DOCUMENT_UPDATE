@@ -9,7 +9,7 @@ from langchain_community.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter, NLTKTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Qdrant
+from langchain_qdrant import Qdrant
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
 # import nltk
@@ -214,10 +214,11 @@ if st.button("🚀 Build Vector Store"):
             )
 
             # Build the vector store
-            vectorstore = Qdrant(
+            vectorstore = Qdrant.from_documents(
+                documents=all_chunks,
+                embedding=embeddings,
                 client=qdrant_client,
                 collection_name=collection_name,
-                embeddings=embeddings,
             )
             vectorstore.add_documents(all_chunks)
             st.session_state.vector_store_exists = True
