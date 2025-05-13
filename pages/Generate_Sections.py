@@ -11,7 +11,7 @@ from langchain.prompts import PromptTemplate
 import traceback
 import matplotlib.pyplot as plt
 import re
-import google.generativeai as genai
+# import google.generativeai as genai
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Page config
@@ -37,6 +37,15 @@ if 'embedding_model' not in st.session_state:
 if 'mortality_data' not in st.session_state:
     st.error("⚠️ No dataset found! Please upload your mortality data first.")
     st.stop()
+
+# Model config check
+if st.session_state.get('model_name').startswith("gpt") and not(openai_api_key):
+    st.error("⚠️ OpenAI API key required for OpenAI models!")
+    st.stop()   
+
+if st.session_state.get('model_name').startswith("gemini") and not(google_api_key):
+    st.error("⚠️ Google API key required for Gemini models!")
+    st.stop()   
 
 # Generation Section
 try:
