@@ -237,9 +237,9 @@ Place the figure and table at the appropriate location within the narrative.
 Here is the dataset sample:
 {dataset_summary}
 """
-        result = qa_chain({"question": query})
-        st.session_state.generated_content = result["result"]
-        st.rerun()  # Refresh to show updated content
+            result = qa_chain({"question": query})
+            st.session_state.generated_content = result["result"]
+            st.rerun()  # Refresh to show updated content
     
     with col2:
         if st.session_state.generated_content:
