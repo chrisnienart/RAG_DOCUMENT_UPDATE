@@ -201,8 +201,8 @@ if st.button("🚀 Build Vector Store"):
             # Ensure vector store directory exists
             os.makedirs("vector_store", exist_ok=True)
             
-            # Initialize Qdrant with persistent storage
-            qdrant_client = QdrantClient(
+            # Initialize Qdrant with persistent storage and store in session
+            st.session_state.qdrant_client = QdrantClient(
                 path="vector_store",
                 prefer_grpc=True
             )

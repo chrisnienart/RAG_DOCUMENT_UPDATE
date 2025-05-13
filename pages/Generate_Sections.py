@@ -81,10 +81,13 @@ try:
         st.error(f"❌ Failed to initialize embeddings: {e}")
         st.stop()
 
-    qdrant_client = QdrantClient(
-        path=store_path,
-        prefer_grpc=True
-    )
+    # Get existing Qdrant client from session or create new one
+    if 'qdrant_client' not in st.session_state:
+        st.session_state.qdrant_client = QdrantClient(
+            path=store_path,
+            prefer_grpc=True
+        )
+    qdrant_client = st.session_state.qdrant_client
 
     # Verify collection exists
     try:
