@@ -225,10 +225,12 @@ try:
     # Changed button label and moved generation logic
     button_label = "Regenerate Pandemic Mortality Section" if st.session_state.generated_content else "Generate Pandemic Mortality Section"
     
-    if st.button(f"🚀 {button_label}"):
-        df = st.session_state.mortality_data
-        dataset_summary = df.head(20).to_markdown(index=False)
-        query = f"""
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.button(f"🚀 {button_label}"):
+            df = st.session_state.mortality_data
+            dataset_summary = df.head(20).to_markdown(index=False)
+            query = f"""
 Using the uploaded dataset, write Section 3 of the RPEC 2024 report in the {selected_prompt_name} style. 
 Place the figure and table at the appropriate location within the narrative.
 
@@ -238,6 +240,16 @@ Here is the dataset sample:
         result = qa_chain({"question": query})
         st.session_state.generated_content = result["result"]
         st.rerun()  # Refresh to show updated content
+    
+    with col2:
+        if st.session_state.generated_content:
+            st.download_button(
+                label="💾 Download Content",
+                data=st.session_state.generated_content,
+                file_name="RPEC_2024_Section3.md",
+                mime="text/markdown",
+                help="Save the generated content as a Markdown file"
+            )
 
     # Display existing content if available
     if st.session_state.generated_content:
