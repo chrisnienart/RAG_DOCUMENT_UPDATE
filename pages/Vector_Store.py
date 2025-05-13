@@ -201,11 +201,6 @@ if st.button("🚀 Build Vector Store"):
                 st.markdown("### 📊 Chunk Generation Summary")
                 st.dataframe(chunk_df)
 
-            # Save metadata to disk
-            os.makedirs(store_path, exist_ok=True)
-            with open(os.path.join(store_path, f"{collection_name}_document_metadata.json"), "w") as f:
-                json.dump(metadata_log, f, indent=2)
-
             # Embedding model init
             if embedding_source == "OpenAI":
                 embeddings = OpenAIEmbeddings(
@@ -246,6 +241,11 @@ if st.button("🚀 Build Vector Store"):
 
             # Generate collection name with known dimensions
             collection_name = f"{collection_base_name}_{embedding_source.lower().replace(' ', '_')}_{vector_dim}_{unique_id}"
+
+            # Save metadata to disk
+            os.makedirs(store_path, exist_ok=True)
+            with open(os.path.join(store_path, f"{collection_name}_document_metadata.json"), "w") as f:
+                json.dump(metadata_log, f, indent=2)
 
             # Check existing collection and dimensions
             try:
