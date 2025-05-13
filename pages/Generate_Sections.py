@@ -243,17 +243,18 @@ Here is the dataset sample:
     
     with col2:
         if st.session_state.generated_content:
-            st.download_button(
-                label="💾 Download Content",
-                data=st.session_state.generated_content,
-                file_name="RPEC_2024_Section3.md",
-                mime="text/markdown",
-                help="Save the generated content as a Markdown file"
-            )
+            st.empty()  # Keep column spacing consistent
 
     # Display existing content if available
     if st.session_state.generated_content:
         st.subheader("Generated Content")
+        st.download_button(
+            label="💾 Download Content",
+            data=st.session_state.generated_content,
+            file_name="RPEC_2024_Section3.md",
+            mime="text/markdown",
+            help="Save the generated content as a Markdown file"
+        )
         section_text = st.session_state.generated_content
         
         # Existing figure rendering logic
