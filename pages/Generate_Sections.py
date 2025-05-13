@@ -3,7 +3,7 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient
-from langchain_qdrant import Qdrant
+from langchain_qdrant import QdrantVectorStore
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.chains import RetrievalQA
@@ -93,10 +93,10 @@ try:
         st.error(f"❌ Collection '{collection_name}' not found in vector_store directory")
         st.stop()
 
-    vectorstore = Qdrant(
+    vectorstore = QdrantVectorStore(
         client=qdrant_client,
         collection_name=collection_name,
-        embeddings=embeddings
+        embedding=embeddings
     )
     retriever = vectorstore.as_retriever(search_kwargs={"k": k})
 
