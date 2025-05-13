@@ -141,6 +141,12 @@ st.session_state['store_path'] = store_path
 unique_id = uuid.uuid4().hex[:6]
 collection_name = f"{collection_base_name}_{embedding_source.lower().replace(' ', '_')}_{vector_dim}_{unique_id}"
 
+# Add force recreate option
+force_recreate = st.checkbox(
+    "Force recreate collection (required when changing embedding models)",
+    value=False,
+    help="Check this if you're changing embedding models to avoid dimension mismatch errors"
+)
 
 if st.button("🚀 Build Vector Store"):
     if not uploaded_files:
@@ -239,11 +245,22 @@ if st.button("🚀 Build Vector Store"):
                 prefer_grpc=True
             )
 
-            # Create new unique collection
-            st.session_state.qdrant_client.create_collection(
-                collection_name=collection_name,
-                vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE),
-            )
+            # Create or recreate collection based on force_recreate flag
+            try:
+                if force_recreate:
+                    st.session_state.qdrant_client.recreate_collection(
+                        collection_name=collection_name,
+                        vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE),
+                    )
+                else:
+                    st.session_state.qdrant_client.create_collection(
+                        collection_name=collection_name,
+                        vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE),
+                    )
+            except Exception as e:
+                st.error(f"❌ Collection creation failed: {e}")
+                st.error("If you're changing embedding models, please enable 'Force recreate collection'")
+                st.stop()
 
             # Build the vector store
             vectorstore = QdrantVectorStore(
