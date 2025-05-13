@@ -11,21 +11,21 @@ from langchain_community.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddin
 from langchain_community.vectorstores import Qdrant
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
-import nltk
+# import nltk
 import traceback
 
-# Ensure NLTK tokenizer is available
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    with st.spinner("📥 Downloading NLTK tokenizers (first-time setup)..."):
-        nltk.download('punkt')
-    try:
-        nltk.data.find('tokenizers/punkt')
-    except LookupError:
-        st.error("❌ NLTK tokenizer download failed! Check:")
-        st.markdown("- Internet connection\n- Proxy/firewall settings\n- Disk permissions")
-        st.stop()
+# # Ensure NLTK tokenizer is available
+# try:
+#     nltk.data.find('tokenizers/punkt')
+# except LookupError:
+#     with st.spinner("📥 Downloading NLTK tokenizers (first-time setup)..."):
+#         nltk.download('punkt')
+#     try:
+#         nltk.data.find('tokenizers/punkt')
+#     except LookupError:
+#         st.error("❌ NLTK tokenizer download failed! Check:")
+#         st.markdown("- Internet connection\n- Proxy/firewall settings\n- Disk permissions")
+#         st.stop()
 
 # Load environment
 load_dotenv()
