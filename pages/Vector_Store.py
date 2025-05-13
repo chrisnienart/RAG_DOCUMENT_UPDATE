@@ -238,24 +238,29 @@ if st.button("🚀 Build Vector Store"):
             #     prefer_grpc=True
             # )
 
-            # Create or recreate collection if not already created
+            # Initialize Qdrant client
             if 'qdrant_client' not in st.session_state:
                 st.session_state.qdrant_client = QdrantClient(
                     path="vector_store",
                     prefer_grpc=True
                 )
-            else:
+            
+            # Force recreate collection with new dimensions
+            try:
                 st.session_state.qdrant_client.delete_collection(
                     collection_name=collection_name
                 )
+            except Exception:
+                pass  # Ignore if collection doesn't exist
                 
-            # Create collection again
+            # Create collection with new dimensions
             st.session_state.qdrant_client.create_collection(
                 collection_name=collection_name,
                 vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE),
             )
 
-            # Build the vector store
+            # Build the vector store with force_recreate
+            st.warning(f"⚠️ Creating new collection with {vector_dim}-dimensional vectors")
             vectorstore = QdrantVectorStore(
                 client=st.session_state.qdrant_client,
                 collection_name=collection_name,
