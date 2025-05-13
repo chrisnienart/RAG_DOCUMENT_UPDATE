@@ -8,7 +8,7 @@ import pandas as pd
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter, NLTKTextSplitter
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
