@@ -133,9 +133,8 @@ collection_base_name = "rpec"
 store_path = "vector_store"
 st.session_state['store_path'] = store_path
 
-# --- Generate Unique Collection Name ---
+# --- Generate Unique ID ---
 unique_id = uuid.uuid4().hex[:6]
-collection_name = f"{collection_base_name}_{embedding_source.lower().replace(' ', '_')}_{vector_dim}_{unique_id}"
 
 if st.button("🚀 Build Vector Store"):
     if not uploaded_files:
@@ -244,6 +243,9 @@ if st.button("🚀 Build Vector Store"):
             # Get vector dimensions from actual embeddings
             test_embedding = embeddings.embed_query("test")
             vector_dim = len(test_embedding)
+
+            # Generate collection name with known dimensions
+            collection_name = f"{collection_base_name}_{embedding_source.lower().replace(' ', '_')}_{vector_dim}_{unique_id}"
 
             # Check existing collection and dimensions
             try:
