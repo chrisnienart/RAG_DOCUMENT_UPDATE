@@ -136,7 +136,7 @@ st.session_state['store_path'] = store_path
 # --- Generate Unique ID ---
 unique_id = uuid.uuid4().hex[:6]
 
-if st.button("🚀 Build Vector Store"):
+if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_state else "🚀 Build Vector Store"):
     if not uploaded_files:
         st.warning("Please upload at least one PDF document.")
     else:
