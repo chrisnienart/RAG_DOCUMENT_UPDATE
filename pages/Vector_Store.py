@@ -133,10 +133,9 @@ collection_base_name = "rpec"
 store_path = "vector_store"
 st.session_state['store_path'] = store_path
 
-# --- Generate Unique ID ---
-unique_id = uuid.uuid4().hex[:6]
-
 if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_state else "🚀 Build Vector Store"):
+    # Generate unique ID for this build
+    unique_id = uuid.uuid4().hex[:6]
     if not uploaded_files:
         st.warning("Please upload at least one PDF document.")
     else:
@@ -268,8 +267,12 @@ if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_
                 except Exception:
                     pass
 
-            # Create/recreate collection with explicit parameters
-            st.session_state.qdrant_client.recreate_collection(
+            # Clean up existing collection if needed
+            if st.session_state.qdrant_client.collection_exists(collection_name):
+                st.session_state.qdrant_client.delete_collection(collection_name)
+            
+            # Create fresh collection with current config
+            st.session_state.qdrant_client.create_collection(
                 collection_name=collection_name,
                 vectors_config=VectorParams(
                     size=vector_dim,
