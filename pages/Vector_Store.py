@@ -120,14 +120,6 @@ elif embedding_source == "Hugging Face (local)":
     )
 st.session_state['embedding_model'] = embedding_model
 
-# --- Force Recreate Option ---
-force_recreate = st.checkbox(
-    "Force recreate collection (required when changing embedding models)",
-    value=st.session_state.get('force_recreate', False),
-    help="Essential when switching embedding models with different dimensional outputs"
-)
-
-
 # --- Output names ---
 collection_base_name = "rpec"
 store_path = "vector_store"
@@ -251,21 +243,13 @@ if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_
                 existing_collection = st.session_state.qdrant_client.get_collection(collection_name)
                 
                 # Dimension check logic
-                if existing_collection.config.params.vectors.size != vector_dim and not force_recreate:
+                if existing_collection.config.params.vectors.size != vector_dim:
                     st.error(f"""Dimension mismatch! Existing: {existing_collection.config.params.vectors.size}D, """
-                             f"""Current: {vector_dim}D. Enable 'Force recreate collection' to resolve.""")
+                             f"""Current: {vector_dim}D. You must manually delete the collection or choose matching embeddings.""")
                     st.stop()
                     
             except Exception:
                 pass  # Collection doesn't exist yet
-
-            # Force delete if requested
-            if force_recreate:
-                try:
-                    st.session_state.qdrant_client.delete_collection(collection_name)
-                    st.session_state.force_recreate = False  # Reset after use
-                except Exception:
-                    pass
 
             # Clean up existing collection if needed
             if st.session_state.qdrant_client.collection_exists(collection_name):
