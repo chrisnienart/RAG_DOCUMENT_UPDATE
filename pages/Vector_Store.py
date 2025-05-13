@@ -76,22 +76,47 @@ with st.expander("🧠 How to choose Chunk Size, Overlap, and Splitter Type?", e
 """)
 
 # --- Hyperparameter Inputs ---
-chunk_size = st.number_input("Chunk Size", value=1000, min_value=100, max_value=5000, step=100)
-chunk_overlap = st.number_input("Chunk Overlap", value=150, min_value=0, max_value=500, step=50)
-splitter_type = st.selectbox("Text Splitter Type", ["Sentence-aware (NLTK)", "Character-based (Recursive)"])
+chunk_size = st.number_input(
+    "Chunk Size",
+    value=st.session_state.get('chunk_size', 1000),
+    min_value=100,
+    max_value=5000,
+    step=100
+)
+chunk_overlap = st.number_input(
+    "Chunk Overlap",
+    value=st.session_state.get('chunk_overlap', 150),
+    min_value=0,
+    max_value=500,
+    step=50
+)
+splitter_type = st.selectbox(
+    "Text Splitter Type",
+    ["Sentence-aware (NLTK)", "Character-based (Recursive)"],
+    index=0 if st.session_state.get('splitter_type', "Sentence-aware (NLTK)") == "Sentence-aware (NLTK)" else 1
+)
 
 # --- Embedding Source + Model Selection ---
-embedding_source = st.selectbox("Embedding Source", ["OpenAI", "Hugging Face (local)"])
+embedding_source = st.selectbox(
+    "Embedding Source",
+    ["OpenAI", "Hugging Face (local)"],
+    index=0 if st.session_state.get('embedding_source', "OpenAI") == "OpenAI" else 1
+)
 
 if embedding_source == "OpenAI":
-    embedding_model = st.selectbox("Embedding Model", ["text-embedding-3-small", "text-embedding-3-large"])
+    embedding_model = st.selectbox(
+        "Embedding Model",
+        ["text-embedding-3-small", "text-embedding-3-large"],
+        index=0 if st.session_state.get('embedding_model', "text-embedding-3-small") == "text-embedding-3-small" else 1
+    )
 elif embedding_source == "Hugging Face (local)":
     embedding_model = st.selectbox(
         "Embedding Model",
         [
             "sentence-transformers/all-MiniLM-L6-v2",
             "sentence-transformers/paraphrase-MiniLM-L12-v2"
-        ]
+        ],
+        index=0 if st.session_state.get('embedding_model', "sentence-transformers/all-MiniLM-L6-v2") == "sentence-transformers/all-MiniLM-L6-v2" else 1
     )
 st.session_state['embedding_model'] = embedding_model
 
@@ -236,6 +261,13 @@ if st.button("🚀 Build Vector Store"):
                 st.warning(f"⚠️ Mismatch: {len(all_chunks)} chunks processed but Qdrant has {stored_vectors} vectors stored.")
             else:
                 st.success(f"✅ Verified: {stored_vectors} vectors stored in Qdrant — all chunks embedded successfully.")
+
+            # Save parameters to session state
+            st.session_state['chunk_size'] = chunk_size
+            st.session_state['chunk_overlap'] = chunk_overlap
+            st.session_state['splitter_type'] = splitter_type
+            st.session_state['embedding_source'] = embedding_source
+            st.session_state['embedding_model'] = embedding_model
 
             # Save embedding metadata
             with open(os.path.join(store_path, f"{collection_name}_embedding_model.txt"), "w") as f:
