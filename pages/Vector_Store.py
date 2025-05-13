@@ -206,25 +206,20 @@ if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_
             # Ensure vector store directory exists
             os.makedirs("vector_store", exist_ok=True)
             
-            # Close any existing client before creating new one
-            if 'qdrant_client' in st.session_state:
-                try:
+            # --- Proper client lifecycle management ---
+            try:
+                # Close and remove any existing client
+                if 'qdrant_client' in st.session_state:
                     st.session_state.qdrant_client.close()
-                except Exception:
-                    pass  # Ignore errors if already closed
-            
-            # # Initialize fresh Qdrant client
-            # st.session_state.qdrant_client = QdrantClient(
-            #     path="vector_store",
-            #     prefer_grpc=True
-            # )
+                    del st.session_state.qdrant_client
+            except Exception as e:
+                st.warning(f"Client cleanup warning: {str(e)}")
 
-            # Initialize Qdrant client
-            if 'qdrant_client' not in st.session_state:
-                st.session_state.qdrant_client = QdrantClient(
-                    path="vector_store",
-                    prefer_grpc=True
-                )
+            # Always create fresh client instance for build operations
+            st.session_state.qdrant_client = QdrantClient(
+                path=os.path.abspath("vector_store"),
+                prefer_grpc=True
+            )
             
             # Get vector dimensions from actual embeddings
             test_embedding = embeddings.embed_query("test")
