@@ -120,17 +120,13 @@ elif embedding_source == "Hugging Face (local)":
     )
 st.session_state['embedding_model'] = embedding_model
 
-# --- Auto Vector Dimension Detection ---
-if "text-embedding-3-small" in embedding_model:
-    vector_dim = 1536
-elif "text-embedding-3-large" in embedding_model:
-    vector_dim = 3072
-elif "all-MiniLM-L6" in embedding_model:
-    vector_dim = 384
-elif "paraphrase-MiniLM-L12" in embedding_model:
-    vector_dim = 768
-else:
-    vector_dim = 768  # fallback
+# --- Force Recreate Option ---
+force_recreate = st.checkbox(
+    "Force recreate collection (required when changing embedding models)",
+    value=st.session_state.get('force_recreate', False),
+    help="Essential when switching embedding models with different dimensional outputs"
+)
+
 
 # --- Output names ---
 collection_base_name = "rpec"
@@ -245,22 +241,42 @@ if st.button("🚀 Build Vector Store"):
                     prefer_grpc=True
                 )
             
-            # Force recreate collection with new dimensions
+            # Get vector dimensions from actual embeddings
+            test_embedding = embeddings.embed_query("test")
+            vector_dim = len(test_embedding)
+
+            # Check existing collection and dimensions
             try:
-                st.session_state.qdrant_client.delete_collection(
-                    collection_name=collection_name
-                )
-            except Exception:
-                pass  # Ignore if collection doesn't exist
+                existing_collection = st.session_state.qdrant_client.get_collection(collection_name)
                 
-            # Create collection with new dimensions
-            st.session_state.qdrant_client.create_collection(
+                # Dimension check logic
+                if existing_collection.config.params.vectors.size != vector_dim and not force_recreate:
+                    st.error(f"""Dimension mismatch! Existing: {existing_collection.config.params.vectors.size}D, """
+                             f"""Current: {vector_dim}D. Enable 'Force recreate collection' to resolve.""")
+                    st.stop()
+                    
+            except Exception:
+                pass  # Collection doesn't exist yet
+
+            # Force delete if requested
+            if force_recreate:
+                try:
+                    st.session_state.qdrant_client.delete_collection(collection_name)
+                    st.session_state.force_recreate = False  # Reset after use
+                except Exception:
+                    pass
+
+            # Create/recreate collection with explicit parameters
+            st.session_state.qdrant_client.recreate_collection(
                 collection_name=collection_name,
-                vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE),
+                vectors_config=VectorParams(
+                    size=vector_dim,
+                    distance=Distance.COSINE
+                )
             )
 
-            # Build the vector store with force_recreate
-            st.warning(f"⚠️ Creating new collection with {vector_dim}-dimensional vectors")
+            # Build the vector store
+            st.info(f"📊 Creating new collection with {vector_dim}-dimensional vectors")
             vectorstore = QdrantVectorStore(
                 client=st.session_state.qdrant_client,
                 collection_name=collection_name,
