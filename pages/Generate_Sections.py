@@ -81,12 +81,10 @@ try:
         st.error(f"❌ Failed to initialize embeddings: {e}")
         st.stop()
 
-    # Get existing Qdrant client from session or create new one
+    # Get existing Qdrant client from session
     if 'qdrant_client' not in st.session_state:
-        st.session_state.qdrant_client = QdrantClient(
-            path=store_path,
-            prefer_grpc=True
-        )
+        st.error("❌ No Qdrant client found! Please build a vector store first.")
+        st.stop()
     qdrant_client = st.session_state.qdrant_client
 
     # Verify collection exists
