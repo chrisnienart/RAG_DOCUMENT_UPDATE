@@ -32,9 +32,13 @@ st.title("📘 RPEC Annual Mortality Dashboard")
 
 st.markdown("""
 Welcome to the **RPEC Annual Mortality Dashboard**, a dynamic tool powered by AI to help actuaries and analysts generate narrative sections of the SOA's Retirement Plans Experience Committee (RPEC) report.
+""")
 
+st.info("""
 *This app is designed to specifically generate analysis on **mortality experience during the COVID-19 pandemic**.*
+""")
 
+st.markdown("""
 This application uses **RAG (Retrieval-Augmented Generation)** techniques with **LangChain** and **OpenAI** models to synthesize structured insights from:
 - Prior RPEC PDF reports (embedded in a vector store)
 - A synthetic dataset of mortality metrics for the year
