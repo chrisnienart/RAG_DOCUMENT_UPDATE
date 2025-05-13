@@ -208,14 +208,14 @@ if st.button("🚀 Build Vector Store"):
             )
 
             # Create new unique collection
-            qdrant_client.create_collection(
+            st.session_state.qdrant_client.create_collection(
                 collection_name=collection_name,
                 vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE),
             )
 
             # Build the vector store
             vectorstore = QdrantVectorStore(
-                client=qdrant_client,
+                client=st.session_state.qdrant_client,
                 collection_name=collection_name,
                 embedding=embeddings,
             )
@@ -224,7 +224,7 @@ if st.button("🚀 Build Vector Store"):
             st.session_state['qdrant_collection'] = collection_name  # Store collection name
 
             # ✅ Phase 2 Validation: Compare vector count
-            stored_vectors = qdrant_client.count(collection_name=collection_name).count
+            stored_vectors = st.session_state.qdrant_client.count(collection_name=collection_name).count
             if stored_vectors != len(all_chunks):
                 st.warning(f"⚠️ Mismatch: {len(all_chunks)} chunks processed but Qdrant has {stored_vectors} vectors stored.")
             else:
