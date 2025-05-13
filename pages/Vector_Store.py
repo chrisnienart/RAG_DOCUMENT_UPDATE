@@ -141,13 +141,6 @@ st.session_state['store_path'] = store_path
 unique_id = uuid.uuid4().hex[:6]
 collection_name = f"{collection_base_name}_{embedding_source.lower().replace(' ', '_')}_{vector_dim}_{unique_id}"
 
-# Add force recreate option
-force_recreate = st.checkbox(
-    "Force recreate collection (required when changing embedding models)",
-    value=False,
-    help="Check this if you're changing embedding models to avoid dimension mismatch errors"
-)
-
 if st.button("🚀 Build Vector Store"):
     if not uploaded_files:
         st.warning("Please upload at least one PDF document.")
@@ -232,35 +225,35 @@ if st.button("🚀 Build Vector Store"):
             # Ensure vector store directory exists
             os.makedirs("vector_store", exist_ok=True)
             
-            # Close any existing client before creating new one
-            if 'qdrant_client' in st.session_state:
-                try:
-                    st.session_state.qdrant_client.close()
-                except Exception:
-                    pass  # Ignore errors if already closed
+            # # Close any existing client before creating new one
+            # if 'qdrant_client' in st.session_state:
+            #     try:
+            #         st.session_state.qdrant_client.close()
+            #     except Exception:
+            #         pass  # Ignore errors if already closed
             
-            # Initialize fresh Qdrant client
-            st.session_state.qdrant_client = QdrantClient(
-                path="vector_store",
-                prefer_grpc=True
-            )
+            # # Initialize fresh Qdrant client
+            # st.session_state.qdrant_client = QdrantClient(
+            #     path="vector_store",
+            #     prefer_grpc=True
+            # )
 
-            # Create or recreate collection based on force_recreate flag
-            try:
-                if force_recreate:
-                    st.session_state.qdrant_client.recreate_collection(
-                        collection_name=collection_name,
-                        vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE),
-                    )
-                else:
-                    st.session_state.qdrant_client.create_collection(
-                        collection_name=collection_name,
-                        vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE),
-                    )
-            except Exception as e:
-                st.error(f"❌ Collection creation failed: {e}")
-                st.error("If you're changing embedding models, please enable 'Force recreate collection'")
-                st.stop()
+            # Create or recreate collection if not already created
+            if 'qdrant_client' not in st.session_state:
+                st.session_state.qdrant_client = QdrantClient(
+                    path="vector_store",
+                    prefer_grpc=True
+                )
+            else:
+                st.session_state.qdrant_client.delete_collection(
+                    collection_name=collection_name
+                )
+                
+            # Create collection again
+            st.session_state.qdrant_client.create_collection(
+                collection_name=collection_name,
+                vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE),
+            )
 
             # Build the vector store
             vectorstore = QdrantVectorStore(
