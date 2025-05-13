@@ -19,10 +19,11 @@ with st.expander("🧠 How to pick an LLM and hyper parameters", expanded=False)
     st.markdown(
         """
         **🧠 LLM Model**
-        - GPT-4-Turbo: Best for tasks that require long context, but can be expensive
-        - GPT-3.5-Turbo: Best for tasks that require long context, but can be expensive
-        - GPT-4.1-Mini: Best for tasks that require short context, but can be expensive
-        - Gemini-1.5-Pro: Best for tasks that require short context, but can be expensive
+        - GPT-4.1-Mini: OpenAI's low-cost and low latency model with comparable performance to GPT-4o
+        - GPT-4o: OpenAI's flagship model with high performance and expanded capabilities
+        - GPT-4-Turbo: OpenAI's older generation model with high performance but high cost
+        - Gemini-2.5-Pro: Google's flagship "thinking model" with state of the art intelligence
+        - Gemini-2.5-Flash: A variant of Gemini-2.5-Pro with faster inference and lower cost
         """)
     st.markdown(
         """
@@ -36,12 +37,20 @@ with st.expander("🧠 How to pick an LLM and hyper parameters", expanded=False)
         - Higher = more randomness, but risk of hallucinations
         - Lower = more factual, but risk of hallucinations
         """)
+    st.markdown(
+        """
+        **👉  Default Recommendation**
+        - model: GPT-4.1-Mini
+        - top k chunks = 20 
+        - temperature = 0.2
+        """
+    )
     
 # Model parameters
 st.markdown("### 🧩 Model Settings")
 
 # Available models list
-MODELS = ["gpt-4.1-mini", "gpt-4-turbo", "gpt-3.5-turbo", "gemini-1.5-pro"]
+MODELS = ["gpt-4.1-mini", "gpt-4o", "gpt-4-turbo", "gemini-2.5-pro-preview-03-25", "gemini-2.5-flash-preview-04-17"]
 
 # Initialize model parameters with defaults if not set
 if 'model_name' not in st.session_state:
