@@ -4,6 +4,10 @@
 
 This is a Streamlit-based application designed for analyzing and generating sections of the Society of Actuaries' (SOA) Retirement Plans Experience Committee (RPEC) reports. It leverages Retrieval-Augmented Generation (RAG) techniques with LangChain and various AI models (such as OpenAI or Google) to process mortality data from PDFs and datasets. The app allows users to upload documents, configure hyperparameters, and generate narrative reports on topics like mortality trends during events such as the COVID-19 pandemic.
 
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
+
 ## Installation
 
 This project uses `uv` for faster and more reliable Python package management.
