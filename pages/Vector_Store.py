@@ -12,21 +12,7 @@ from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
-# import nltk
 import traceback
-
-# # Ensure NLTK tokenizer is available
-# try:
-#     nltk.data.find('tokenizers/punkt')
-# except LookupError:
-#     with st.spinner("📥 Downloading NLTK tokenizers (first-time setup)..."):
-#         nltk.download('punkt')
-#     try:
-#         nltk.data.find('tokenizers/punkt')
-#     except LookupError:
-#         st.error("❌ NLTK tokenizer download failed! Check:")
-#         st.markdown("- Internet connection\n- Proxy/firewall settings\n- Disk permissions")
-#         st.stop()
 
 # Page config
 st.set_page_config(page_title="RAG Builder - RPEC Vector Store", layout="wide")
