@@ -36,8 +36,6 @@ st.markdown("Build a vector store with configurable hyperparameters for downstre
 # Load environment
 load_dotenv()
 openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
-if not openai_api_key:
-    st.warning("⚠️ No OpenAI API key found! The OpenAI API key is required for OpenAI embeddings. You can still configure other settings, but building with OpenAI embeddings will fail.")
 
 # --- File Uploader ---
 uploaded_files = st.file_uploader("Upload source PDFs (e.g., RPEC 2022/2023 Reports)", type="pdf", accept_multiple_files=True)
@@ -194,7 +192,8 @@ if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_
             # Embedding model init
             if embedding_source == "OpenAI":
                 if not openai_api_key:
-                    st.error("❌ Error: OpenAI API key is required for OpenAI embeddings. Please set your API key before proceeding.")
+                    st.error("❌ Error: OpenAI API key is required for OpenAI embeddings. Please set your API key before proceeding. \
+                             Otherwise use Hugging Face (local) embeddings.")
                     st.stop()
                 embeddings = OpenAIEmbeddings(
                     model=embedding_model,
