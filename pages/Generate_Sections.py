@@ -43,7 +43,7 @@ if st.session_state.get('model_name').startswith("gpt") and not(openai_api_key o
     st.error("⚠️ Either OpenAI or OpenRouter API key required for GPT models!")
     st.stop()   
 
-if st.session_state.get('model_name').startswith("gemini") and not(google_api_key):
+if st.session_state.get('model_name').startswith("gemini") and not(google_api_key or openrouter_api_key):
     st.error("⚠️ Google API key required for Gemini models!")
     st.stop()   
 
@@ -142,14 +142,22 @@ try:
                 openai_api_key=openrouter_api_key,  # Use OpenRouter key
                 base_url="https://openrouter.ai/api/v1"  # Set OpenRouter base URL
             )
-        template_key = "openai"
+        # template_key = "openai"
     else:  # Assuming Google model if not OpenAI
-        llm = ChatGoogleGenerativeAI(
-            model=model_name,
-            temperature=temperature,
-            google_api_key=google_api_key
-        )
-        template_key = "google"
+        if google_api_key:
+            llm = ChatGoogleGenerativeAI(
+                model=model_name,
+                temperature=temperature,
+                google_api_key=google_api_key
+            )
+        elif openrouter_api_key:
+            llm = ChatOpenAI(
+                model_name="google/" + model_name,
+                temperature=temperature,
+                openai_api_key=openrouter_api_key,  # Use OpenRouter key
+                base_url="https://openrouter.ai/api/v1"  # Set OpenRouter base URL
+            )
+        # template_key = "google"
 
     # Generation button and logic
     st.markdown(
