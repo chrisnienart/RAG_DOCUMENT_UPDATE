@@ -28,16 +28,16 @@ import traceback
 #         st.markdown("- Internet connection\n- Proxy/firewall settings\n- Disk permissions")
 #         st.stop()
 
+# Page config
+st.set_page_config(page_title="RAG Builder - RPEC Vector Store", layout="wide")
+st.title("🛠️ RAG Builder for RPEC Reports")
+st.markdown("Build a vector store with configurable hyperparameters for downstream retrieval.")
+
 # Load environment
 load_dotenv()
 openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
 if not openai_api_key:
     st.warning("⚠️ No OpenAI API key found! The OpenAI API key is required for OpenAI embeddings. You can still configure other settings, but building with OpenAI embeddings will fail.")
-
-# Page config
-st.set_page_config(page_title="RAG Builder - RPEC Vector Store", layout="wide")
-st.title("🛠️ RAG Builder for RPEC Reports")
-st.markdown("Build a vector store with configurable hyperparameters for downstream retrieval.")
 
 # --- File Uploader ---
 uploaded_files = st.file_uploader("Upload source PDFs (e.g., RPEC 2022/2023 Reports)", type="pdf", accept_multiple_files=True)
