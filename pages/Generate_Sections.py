@@ -39,8 +39,8 @@ if 'mortality_data' not in st.session_state:
     st.stop()
 
 # Model config check
-if st.session_state.get('model_name').startswith("gpt") and not(openai_api_key):
-    st.error("⚠️ OpenAI API key required for OpenAI models!")
+if st.session_state.get('model_name').startswith("gpt") and not(openai_api_key or openrouter_api_key):
+    st.error("⚠️ Either OpenAI or OpenRouter API key required for GPT models!")
     st.stop()   
 
 if st.session_state.get('model_name').startswith("gemini") and not(google_api_key):
@@ -129,13 +129,21 @@ try:
 
     # Initialize LLM components
     if model_name.startswith("gpt"):
-        llm = ChatOpenAI(
-            model_name=model_name,
-            temperature=temperature,
-            openai_api_key=openai_api_key
-        )
+        if openai_api_key:
+            llm = ChatOpenAI(
+                model_name=model_name,
+                temperature=temperature,
+                openai_api_key=openai_api_key
+            )
+        elif openrouter_api_key:
+            llm = ChatOpenAI(
+                model_name=model_name,
+                temperature=temperature,
+                openai_api_key=openrouter_api_key,  # Use OpenRouter key
+                base_url="https://openrouter.ai/api/v1"  # Set OpenRouter base URL
+            )
         template_key = "openai"
-    else: # Assuming Google model if not OpenAI
+    else:  # Assuming Google model if not OpenAI
         llm = ChatGoogleGenerativeAI(
             model=model_name,
             temperature=temperature,
