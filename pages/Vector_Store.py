@@ -32,8 +32,7 @@ import traceback
 load_dotenv()
 openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
 if not openai_api_key:
-    st.error("⚠️ No OpenAI API key found! Please set your API key in the API Keys page.")
-    st.stop()
+    st.warning("⚠️ No OpenAI API key found! The OpenAI API key is required for OpenAI embeddings. You can still configure other settings, but building with OpenAI embeddings will fail.")
 
 # Page config
 st.set_page_config(page_title="RAG Builder - RPEC Vector Store", layout="wide")
@@ -194,6 +193,9 @@ if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_
 
             # Embedding model init
             if embedding_source == "OpenAI":
+                if not openai_api_key:
+                    st.error("❌ Error: OpenAI API key is required for OpenAI embeddings. Please set your API key before proceeding.")
+                    st.stop()
                 embeddings = OpenAIEmbeddings(
                     model=embedding_model,
                     openai_api_key=openai_api_key
