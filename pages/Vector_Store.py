@@ -115,6 +115,12 @@ if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_
         st.warning("Please upload at least one PDF document.")
     else:
         try:
+            # Check for OpenAI API key when using OpenAI embeddings
+            if embedding_source == "OpenAI" and not openai_api_key:
+                st.error("❌ Error: OpenAI API key is required for OpenAI embeddings. Please set your API key before proceeding. \
+                            Otherwise use Hugging Face (local) embeddings.")
+                st.stop()
+            
             # Text splitter logic
             if splitter_type == "Sentence-aware (NLTK)":
                 text_splitter = NLTKTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
@@ -177,10 +183,6 @@ if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_
 
             # Embedding model init
             if embedding_source == "OpenAI":
-                if not openai_api_key:
-                    st.error("❌ Error: OpenAI API key is required for OpenAI embeddings. Please set your API key before proceeding. \
-                             Otherwise use Hugging Face (local) embeddings.")
-                    st.stop()
                 embeddings = OpenAIEmbeddings(
                     model=embedding_model,
                     openai_api_key=openai_api_key
