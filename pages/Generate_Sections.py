@@ -254,17 +254,18 @@ try:
     col1, col2 = st.columns([1, 1])
     with col1:
         if st.button(f"🚀 {button_label}"):
-            df = st.session_state.mortality_data
-            dataset_summary = df.head(20).to_markdown(index=False)
-            query = f"""
-Using the uploaded dataset, write Section 3 of the RPEC 2024 report in the {selected_prompt_name} style. 
-Place the figure and table at the appropriate location within the narrative.
+            with st.spinner("Generating content..."):
+                df = st.session_state.mortality_data
+                dataset_summary = df.head(20).to_markdown(index=False)
+                query = f"""
+                Using the uploaded dataset, write Section 3 of the RPEC 2024 report in the {selected_prompt_name} style. 
+                Place the figure and table at the appropriate location within the narrative.
 
-Here is the dataset sample:
-{dataset_summary}
-"""
-            result = qa_chain.invoke({"question": query})
-            st.session_state.generated_content = result["result"]
+                Here is the dataset sample:
+                {dataset_summary}
+                """
+                result = qa_chain.invoke({"question": query})
+                st.session_state.generated_content = result["result"]
             st.rerun()  # Refresh to show updated content
     
     with col2:
