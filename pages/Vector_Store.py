@@ -204,6 +204,16 @@ if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_
             except Exception as e:
                 st.warning(f"Client cleanup warning: {str(e)}")
 
+            # Remove any existing lock file
+            lock_file_path = os.path.join(os.path.abspath("vector_store"), ".lock")
+            if os.path.exists(lock_file_path):
+                try:
+                    os.remove(lock_file_path)
+                    st.warning("Removed existing lock file to allow new vector store creation.")
+                except Exception as e:
+                    st.error(f"Failed to remove lock file: {e}")
+                    st.stop()  # Stop to prevent potential conflicts
+
             # Always create fresh client instance for build operations
             st.session_state.qdrant_client = QdrantClient(
                 path=os.path.abspath("vector_store"),
