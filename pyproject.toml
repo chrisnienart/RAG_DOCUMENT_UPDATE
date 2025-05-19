@@ -9,7 +9,13 @@ packages = ["pages"]
 name = "RPEC_app"
 version = "0.1.0"
 authors = [
-  {name="Your Name", email="your.email@example.com"},
+  {name="Tommy Steed"},
+  {name="Dongzhi Zheng"},
+  {name="Magdalena Diedrich"},
+  {name="Chris Nienart"},
+]
+maintainers = [
+  {name="Chris Nienart"},
 ]
 description = "RPEC Mortality Analysis Application"
 readme = "README.md"
