@@ -7,41 +7,21 @@ import json
 import pandas as pd
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter, NLTKTextSplitter
-from langchain_community.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
-from langchain_community.vectorstores import Qdrant
+from langchain_openai import OpenAIEmbeddings
+from langchain_huggingface.embeddings import HuggingFaceEmbeddings
+from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
-import nltk
 import traceback
-
-# Ensure NLTK tokenizer is available
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    with st.spinner("📥 Downloading NLTK tokenizers (first-time setup)..."):
-        nltk.download('punkt')
-    try:
-        nltk.data.find('tokenizers/punkt')
-    except LookupError:
-        st.error("❌ NLTK tokenizer download failed! Check:")
-        st.markdown("- Internet connection\n- Proxy/firewall settings\n- Disk permissions")
-        st.stop()
-
-# # Initialize Qdrant API key in session state
-# if "qdrant_api_key" not in st.session_state:
-#     st.session_state.qdrant_api_key = os.getenv("QDRANT_API_KEY", "")
-
-# Load environment
-load_dotenv()
-openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
-if not openai_api_key:
-    st.error("⚠️ No OpenAI API key found! Please set your API key in the API Keys page.")
-    st.stop()
 
 # Page config
 st.set_page_config(page_title="RAG Builder - RPEC Vector Store", layout="wide")
 st.title("🛠️ RAG Builder for RPEC Reports")
 st.markdown("Build a vector store with configurable hyperparameters for downstream retrieval.")
+
+# Load environment
+load_dotenv()
+openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
 
 # --- File Uploader ---
 uploaded_files = st.file_uploader("Upload source PDFs (e.g., RPEC 2022/2023 Reports)", type="pdf", accept_multiple_files=True)
@@ -79,76 +59,68 @@ with st.expander("🧠 How to choose Chunk Size, Overlap, and Splitter Type?", e
 """)
 
 # --- Hyperparameter Inputs ---
-chunk_size = st.number_input("Chunk Size", value=1000, min_value=100, max_value=5000, step=100)
-chunk_overlap = st.number_input("Chunk Overlap", value=150, min_value=0, max_value=500, step=50)
-splitter_type = st.selectbox("Text Splitter Type", ["Sentence-aware (NLTK)", "Character-based (Recursive)"])
+chunk_size = st.number_input(
+    "Chunk Size",
+    value=st.session_state.get('chunk_size', 1000),
+    min_value=100,
+    max_value=5000,
+    step=100
+)
+chunk_overlap = st.number_input(
+    "Chunk Overlap",
+    value=st.session_state.get('chunk_overlap', 150),
+    min_value=0,
+    max_value=500,
+    step=50
+)
+splitter_type = st.selectbox(
+    "Text Splitter Type",
+    ["Sentence-aware (NLTK)", "Character-based (Recursive)"],
+    index=0 if st.session_state.get('splitter_type', "Sentence-aware (NLTK)") == "Sentence-aware (NLTK)" else 1
+)
 
 # --- Embedding Source + Model Selection ---
-embedding_source = st.selectbox("Embedding Source", ["OpenAI", "Hugging Face (local)"])
+embedding_source = st.selectbox(
+    "Embedding Source",
+    ["OpenAI", "Hugging Face (local)"],
+    index=0 if st.session_state.get('embedding_source', "OpenAI") == "OpenAI" else 1
+)
 
 if embedding_source == "OpenAI":
-    embedding_model = st.selectbox("Embedding Model", ["text-embedding-3-small", "text-embedding-3-large"])
+    embedding_model = st.selectbox(
+        "Embedding Model",
+        ["text-embedding-3-small", "text-embedding-3-large"],
+        index=0 if st.session_state.get('embedding_model', "text-embedding-3-small") == "text-embedding-3-small" else 1
+    )
 elif embedding_source == "Hugging Face (local)":
     embedding_model = st.selectbox(
         "Embedding Model",
         [
             "sentence-transformers/all-MiniLM-L6-v2",
             "sentence-transformers/paraphrase-MiniLM-L12-v2"
-        ]
+        ],
+        index=0 if st.session_state.get('embedding_model', "sentence-transformers/all-MiniLM-L6-v2") == "sentence-transformers/all-MiniLM-L6-v2" else 1
     )
 st.session_state['embedding_model'] = embedding_model
-
-# --- Auto Vector Dimension Detection ---
-if "text-embedding-3-small" in embedding_model:
-    vector_dim = 1536
-elif "text-embedding-3-large" in embedding_model:
-    vector_dim = 3072
-elif "all-MiniLM-L6" in embedding_model:
-    vector_dim = 384
-elif "paraphrase-MiniLM-L12" in embedding_model:
-    vector_dim = 768
-else:
-    vector_dim = 768  # fallback
-
-# --- Qdrant Connection Config ---
-with st.expander("🔧 Qdrant Connection Settings", expanded=False):
-    st.markdown("""
-**Connection Guide**  
-- **Local Docker**: Keep host as `localhost` and port `6333`  
-- **Qdrant Cloud**: Use full URL from dashboard (e.g., `cluster.cloud.qdrant.io`) and port `6334`  
-- **HTTPS Required**: Always check 'Use HTTPS' for cloud connections""")
-    
-    qdrant_host = st.text_input("Qdrant Host", 
-                              value=os.getenv("QDRANT_HOST", "localhost"),
-                              help="For cloud: [your-cluster].cloud.qdrant.io")
-    
-    # Dynamic port default based on HTTPS selection
-    use_https = st.checkbox("Use HTTPS", 
-                          value=os.getenv("QDRANT_USE_HTTPS", "False").lower() == "true",
-                          help="Required for Qdrant Cloud")
-    
-    port_default = 6334 if use_https else 6333
-    qdrant_port = st.number_input("Qdrant Port", 
-                                value=int(os.getenv("QDRANT_PORT", port_default)), 
-                                min_value=1, 
-                                max_value=65535,
-                                help="6333 for HTTP, 6334 for HTTPS/gRPC")
 
 # --- Output names ---
 collection_base_name = "rpec"
 store_path = "vector_store"
 st.session_state['store_path'] = store_path
 
-# --- Generate Unique Collection Name ---
-unique_id = uuid.uuid4().hex[:6]
-collection_name = f"{collection_base_name}_{embedding_source.lower().replace(' ', '_')}_{vector_dim}_{unique_id}"
-
-
-if st.button("🚀 Build Vector Store"):
+if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_state else "🚀 Build Vector Store"):
+    # Generate unique ID for this build
+    unique_id = uuid.uuid4().hex[:6]
     if not uploaded_files:
         st.warning("Please upload at least one PDF document.")
     else:
         try:
+            # Check for OpenAI API key when using OpenAI embeddings
+            if embedding_source == "OpenAI" and not openai_api_key:
+                st.error("❌ Error: OpenAI API key is required for OpenAI embeddings. Please set your API key before proceeding. \
+                            Otherwise use Hugging Face (local) embeddings.")
+                st.stop()
+            
             # Text splitter logic
             if splitter_type == "Sentence-aware (NLTK)":
                 text_splitter = NLTKTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
@@ -209,11 +181,6 @@ if st.button("🚀 Build Vector Store"):
                 st.markdown("### 📊 Chunk Generation Summary")
                 st.dataframe(chunk_df)
 
-            # Save metadata to disk
-            os.makedirs(store_path, exist_ok=True)
-            with open(os.path.join(store_path, f"{collection_name}_document_metadata.json"), "w") as f:
-                json.dump(metadata_log, f, indent=2)
-
             # Embedding model init
             if embedding_source == "OpenAI":
                 embeddings = OpenAIEmbeddings(
@@ -228,62 +195,93 @@ if st.button("🚀 Build Vector Store"):
             # Ensure vector store directory exists
             os.makedirs("vector_store", exist_ok=True)
             
-            # Initialize Qdrant with persistent storage
-            qdrant_client = QdrantClient(
-                path="vector_store",
+            # --- Proper client lifecycle management ---
+            try:
+                # Close and remove any existing client
+                if 'qdrant_client' in st.session_state:
+                    st.session_state.qdrant_client.close()
+                    del st.session_state.qdrant_client
+            except Exception as e:
+                st.warning(f"Client cleanup warning: {str(e)}")
+
+            # Remove any existing lock file
+            lock_file_path = os.path.join(os.path.abspath("vector_store"), ".lock")
+            if os.path.exists(lock_file_path):
+                try:
+                    os.remove(lock_file_path)
+                    st.warning("Removed existing lock file to allow new vector store creation.")
+                except Exception as e:
+                    st.error(f"Failed to remove lock file: {e}")
+                    st.stop()  # Stop to prevent potential conflicts
+
+            # Always create fresh client instance for build operations
+            st.session_state.qdrant_client = QdrantClient(
+                path=os.path.abspath("vector_store"),
                 prefer_grpc=True
             )
+            
+            # Get vector dimensions from actual embeddings
+            test_embedding = embeddings.embed_query("test")
+            vector_dim = len(test_embedding)
 
-#             # Qdrant connection with configurable settings
-#             try:
-#                 # Sanitize host input
-#                 clean_host = qdrant_host.replace("http://", "").replace("https://", "").strip()
-                
-#                 qdrant_client = QdrantClient(
-#                     url=f"http{'s' if use_https else ''}://{clean_host}:{qdrant_port}",
-#                     api_key=st.session_state.qdrant_api_key or None,
-#                     prefer_grpc=use_https
-#                 )
-                
-#                 qdrant_client = QdrantClient(":memory:")  # Qdrant is running from RAM.
+            # Generate collection name with known dimensions
+            collection_name = f"{collection_base_name}_{embedding_source.lower().replace(' ', '_')}_{vector_dim}_{unique_id}"
 
-#                 # Test connection with timeout
-#                 with st.spinner("Testing Qdrant connection..."):
-#                     qdrant_client.get_collections(timeout=10)
+            # Save metadata to disk
+            os.makedirs(store_path, exist_ok=True)
+            with open(os.path.join(store_path, f"{collection_name}_document_metadata.json"), "w") as f:
+                json.dump(metadata_log, f, indent=2)
+
+            # Check existing collection and dimensions
+            try:
+                existing_collection = st.session_state.qdrant_client.get_collection(collection_name)
+                
+                # Dimension check logic
+                if existing_collection.config.params.vectors.size != vector_dim:
+                    st.error(f"""Dimension mismatch! Existing: {existing_collection.config.params.vectors.size}D, """
+                             f"""Current: {vector_dim}D. You must manually delete the collection or choose matching embeddings.""")
+                    st.stop()
                     
-#             except Exception as e: # Exception as e: st.error(f"❌ Failed to connect to Qdrant: {e}")
-#                 st.error(f"""
-# ❌ Connection failed: {e}
-# Troubleshooting:
-# 1. For local Qdrant: Run `docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant`
-# 2. Check firewall allows port {qdrant_port}
-# 3. Cloud users: Verify API key and cluster URL
-# 4. Ensure protocol (HTTP/HTTPS) matches port configuration
-# """)
-#                 st.stop()
+            except Exception:
+                pass  # Collection doesn't exist yet
 
-            # Create new unique collection
-            qdrant_client.create_collection(
+            # Clean up existing collection if needed
+            if st.session_state.qdrant_client.collection_exists(collection_name):
+                st.session_state.qdrant_client.delete_collection(collection_name)
+            
+            # Create fresh collection with current config
+            st.session_state.qdrant_client.create_collection(
                 collection_name=collection_name,
-                vectors_config=VectorParams(size=vector_dim, distance=Distance.COSINE),
+                vectors_config=VectorParams(
+                    size=vector_dim,
+                    distance=Distance.COSINE
+                )
             )
 
             # Build the vector store
-            vectorstore = Qdrant(
-                client=qdrant_client,
+            st.info(f"📊 Creating new collection with {vector_dim}-dimensional vectors")
+            vectorstore = QdrantVectorStore(
+                client=st.session_state.qdrant_client,
                 collection_name=collection_name,
-                embeddings=embeddings,
+                embedding=embeddings,
             )
             vectorstore.add_documents(all_chunks)
             st.session_state.vector_store_exists = True
             st.session_state['qdrant_collection'] = collection_name  # Store collection name
 
             # ✅ Phase 2 Validation: Compare vector count
-            stored_vectors = qdrant_client.count(collection_name=collection_name).count
+            stored_vectors = st.session_state.qdrant_client.count(collection_name=collection_name).count
             if stored_vectors != len(all_chunks):
                 st.warning(f"⚠️ Mismatch: {len(all_chunks)} chunks processed but Qdrant has {stored_vectors} vectors stored.")
             else:
                 st.success(f"✅ Verified: {stored_vectors} vectors stored in Qdrant — all chunks embedded successfully.")
+
+            # Save parameters to session state
+            st.session_state['chunk_size'] = chunk_size
+            st.session_state['chunk_overlap'] = chunk_overlap
+            st.session_state['splitter_type'] = splitter_type
+            st.session_state['embedding_source'] = embedding_source
+            st.session_state['embedding_model'] = embedding_model
 
             # Save embedding metadata
             with open(os.path.join(store_path, f"{collection_name}_embedding_model.txt"), "w") as f:

@@ -1,22 +1,47 @@
 import streamlit as st
 
+# Define dictionaries for hyperparameters
+vector_store_params = {
+    "chunk_size": "How large each document chunk is before embedding. Affects recall vs. precision.",
+    "chunk_overlap": "Overlap between chunks to preserve context continuity.",
+    "text_splitter_type": "Type of text splitter to use (e.g., Sentence-aware (NLTK) or Character-based (Recursive)).",
+    "embedding_source": "Source for embeddings (e.g., OpenAI or Hugging Face).",
+    "embedding_model": "Which model to use for creating document embeddings."
+}
+
+model_config_params = {
+    "llm_model_name": "Which GPT model to use for generation (`gpt-4-turbo`, `gpt-3.5-turbo`, etc.).",
+    "k (top-k retrieval)": "Number of relevant chunks to pull from the vector store (higher = more context).",
+    "temperature": "Controls randomness of output (lower = more factual, higher = more diverse)."
+}
+
+generation_params = {
+    "prompt_template": "The system prompt structure (can be edited for consistent tone)."
+}
+
 # Must be the first Streamlit command
 st.set_page_config(
-    page_title="RPEC 2024 Mortality Dashboard",
+    page_title="RPEC Annual Mortality Dashboard",
     page_icon="📘",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items=None 
 )
 
-st.title("📘 RPEC 2024 Mortality Dashboard")
+st.title("📘 RPEC Annual Mortality Dashboard")
 
 st.markdown("""
-Welcome to the **RPEC 2024 Mortality Dashboard**, a dynamic tool powered by AI to help actuaries and analysts generate narrative sections of the SOA's Retirement Plans Experience Committee (RPEC) report.
+Welcome to the **RPEC Annual Mortality Dashboard**, a dynamic tool powered by AI to help actuaries and analysts generate narrative sections of the SOA's Retirement Plans Experience Committee (RPEC) report.
+""")
 
+st.info("""
+*This app is designed to specifically generate analysis on **mortality experience during the COVID-19 pandemic**.*
+""")
+
+st.markdown("""
 This application uses **RAG (Retrieval-Augmented Generation)** techniques with **LangChain** and **OpenAI** models to synthesize structured insights from:
 - Prior RPEC PDF reports (embedded in a vector store)
-- A synthetic dataset of mortality metrics for 2024
+- A synthetic dataset of mortality metrics for the year
 
 ---
 """)
@@ -38,21 +63,26 @@ st.markdown(
 ### 🔧 Hyperparameters You Can Control
 Below is a quick summary of the key RAG components you can tune throughout the app:
 
-#### **RAG Builder (Vector Store Tab)**
-| Hyperparameter       | Description                                                                 |
-|----------------------|-----------------------------------------------------------------------------|
-| `chunk_size`         | How large each document chunk is before embedding. Affects recall vs. precision. |
-| `chunk_overlap`      | Overlap between chunks to preserve context continuity.                        |
-| `embedding_model`    | Which model to use for creating document embeddings (`text-embedding-3-small` vs. `large`). |
-| `vectorstore_name`   | Name for storing the built vector store (can swap different versions later).  |
+#### **Vector Store**
+""" + 
+("| Hyperparameter       | Description                                                                 |\n" +
+"|----------------------|-----------------------------------------------------------------------------|\n" + 
+"\n".join([f"| `{key}` | {value} |" for key, value in vector_store_params.items()])) + 
+"""
 
-#### **Section Generator (Generate Section Tab)**
-| Hyperparameter       | Description                                                                 |
-|----------------------|-----------------------------------------------------------------------------|
-| `k` (top-k retrieval)| Number of relevant chunks to pull from the vector store (higher = more context). |
-| `llm_model_name`     | Which GPT model to use for generation (`gpt-4-turbo`, `gpt-3.5-turbo`, etc.). |
-| `temperature`        | Controls randomness of output (lower = more factual, higher = more diverse). |
-| `prompt_template`    | The system prompt structure (currently fixed for consistent tone).           |
+#### **Model Configuration**
+""" + 
+("| Hyperparameter       | Description                                                                 |\n" +
+"|----------------------|-----------------------------------------------------------------------------|\n" + 
+"\n".join([f"| `{key}` | {value} |" for key, value in model_config_params.items()])) + 
+"""
+
+#### **Generation**
+""" + 
+("| Hyperparameter       | Description                                                                 |\n" +
+"|----------------------|-----------------------------------------------------------------------------|\n" + 
+"\n".join([f"| `{key}` | {value} |" for key, value in generation_params.items()])) + 
+"""
 
 ---
 """)
@@ -63,9 +93,9 @@ st.markdown(
 ### 📂 App Structure
 - **Set API Keys**: Set your OpenAI API key or Google API key to run this project.
 - **Vector Store**: Build a vector store with configurable hyperparameters for downstream retrieval.
-- **Mortality Data**: Upload a 2024 mortality dataset that will be used in Section 3.1 from the report using the vector store. 
+- **Mortality Data**: Upload an annual mortality dataset that will be used in the Pandemic Mortality Section from the report using the vector store. 
 - **Model Configuration**: Configure the model and set hyperparameters that shape the generation process.
-- **Generate Section 3.1**: After configuring the model, generate the mortality analysis section.
+- **Generate Sections**: After configuring the model, generate the mortality analysis section.
 
-> ⚠️ Tip: Try regenerating Section 3.1 after changing the model settings to see how the output changes.
+> ⚠️ Tip: Try regenerating the Pandemic Mortality Section after changing the model settings to see how the output changes.
 """)

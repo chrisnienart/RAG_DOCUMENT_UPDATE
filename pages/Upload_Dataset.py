@@ -4,13 +4,13 @@ import pandas as pd
 # Page config
 st.set_page_config(page_title="Upload Dataset - RPEC", layout="wide")
 st.title("📤 Upload Mortality Dataset")
-st.markdown("Upload the dataset needed for Section 3.1 generation")
+st.markdown("Upload the dataset needed for Pandemic Mortality Section generation.")
 
 # User help information
-with st.expander("🧠 How to create synthetic data", expanded=False): 
+with st.expander("🧠 How to create data", expanded=False): 
     st.markdown(
         """
-        Here are some basic ways you can generate CSV data for a RAG
+        Here are some ways to generate CSV data for a RAG
         (Retrieval Augmented Generation) pipeline.\n\n
         """)
     
@@ -40,6 +40,7 @@ Google Sheets, or LibreOffice Calc) and type in your data following the CSV form
 you can use web scraping libraries to extract it programmatically.
 - Structure the Extracted Data: Once you've extracted the data, structure it into a list 
 of lists or a list of dictionaries before writing it to a CSV file using the csv module.
+- Use a third party service like Scraper API or Bright Data for more advanced scraping.
 - Pros: Can gather large amounts of specific data from the web.
 - Cons: Requires more advanced programming skills. Legal and ethical considerations (respecting website terms of service, robots.txt). Websites can change their structure, breaking your scraper.
 
@@ -49,13 +50,13 @@ of lists or a list of dictionaries before writing it to a CSV file using the csv
 lists or dictionaries, you can easily write a script to format it into a CSV.
 - Basic Loops and String Formatting: Use loops to iterate through your data and string 
 formatting to create each row with commas as separators.
-- Use a Python library like `Faker` to generate synthetic data.
+- Use a Python library like Faker to generate synthetic data.
 - Pros: Good for testing your pipeline's functionality without relying on real data.
 - Cons: The data isn't real and may not capture the nuances of your actual data.
 """)
 
 # File upload
-uploaded_file = st.file_uploader("📂 Upload Updated Mortality Dataset (CSV)", type="csv")
+uploaded_file = st.file_uploader("📂 Upload Mortality Dataset (CSV)", type="csv")
 
 # Check whether the dataset is already uploaded in the session state.
 if 'mortality_data' in st.session_state and not uploaded_file:

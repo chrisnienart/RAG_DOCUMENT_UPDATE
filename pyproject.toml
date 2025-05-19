@@ -20,8 +20,10 @@ dependencies = [
     "python-dotenv",
     "matplotlib", 
     "openai",
-    "langchain",
-    "langchain-community",
+    "langchain-community>=0.0.29",
+    "langchain-huggingface>=0.0.4",
+    "langchain-openai>=0.1.1",
+    "langchain_openai>=0.1.0",
     "langchain-text-splitters",
     "faiss-cpu",
     "PyMuPDF",
@@ -38,7 +40,7 @@ dependencies = [
     "google-generativeai>=0.3.0",
     "langchain-google-genai>=0.0.11",
     "nltk>=3.8.1",
-    "qdrant-client>=1.6.4"
+    "langchain-qdrant>=0.1.0"
 ]
 
 [project.optional-dependencies]

@@ -3,20 +3,20 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient
-from langchain_community.vectorstores import Qdrant
-from langchain_community.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
-from langchain.chat_models import ChatOpenAI
+from langchain_qdrant import QdrantVectorStore
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 import traceback
 import matplotlib.pyplot as plt
 import re
-import google.generativeai as genai
+# import google.generativeai as genai
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Page config
 st.set_page_config(page_title="Generate Section - RPEC", layout="wide")
-st.title("🚀 Generate Section 3.1")
+st.title("🚀 Generate Pandemic Mortality Section")
 
 # Load environment and checks
 load_dotenv()
@@ -37,6 +37,15 @@ if 'embedding_model' not in st.session_state:
 if 'mortality_data' not in st.session_state:
     st.error("⚠️ No dataset found! Please upload your mortality data first.")
     st.stop()
+
+# Model config check
+if st.session_state.get('model_name').startswith("gpt") and not(openai_api_key or openrouter_api_key):
+    st.error("⚠️ Either OpenAI or OpenRouter API key required for GPT models!")
+    st.stop()   
+
+if st.session_state.get('model_name').startswith("gemini") and not(google_api_key or openrouter_api_key):
+    st.error("⚠️ Google API key required for Gemini models!")
+    st.stop()   
 
 # Generation Section
 try:
@@ -72,10 +81,11 @@ try:
         st.error(f"❌ Failed to initialize embeddings: {e}")
         st.stop()
 
-    qdrant_client = QdrantClient(
-        path=store_path,
-        prefer_grpc=True
-    )
+    # Get existing Qdrant client from session
+    if 'qdrant_client' not in st.session_state:
+        st.error("❌ No Qdrant client found! Please build a vector store first.")
+        st.stop()
+    qdrant_client = st.session_state.qdrant_client
 
     # Verify collection exists
     try:
@@ -84,10 +94,10 @@ try:
         st.error(f"❌ Collection '{collection_name}' not found in vector_store directory")
         st.stop()
 
-    vectorstore = Qdrant(
+    vectorstore = QdrantVectorStore(
         client=qdrant_client,
         collection_name=collection_name,
-        embeddings=embeddings
+        embedding=embeddings
     )
     retriever = vectorstore.as_retriever(search_kwargs={"k": k})
 
@@ -102,7 +112,7 @@ try:
         ),
         "google": (
             "You are a professional actuarial report writer. Based on the context from previous reports and a provided dataset, "
-            "generate a fully written markdown document for Section 3.1 of the SOA RPEC 2024 Report. "
+            "generate a fully written markdown document for the Pandemic Mortality Section of the SOA RPEC 2024 Report. "
             "The tone should be formal, structured, and human-written. DO NOT include Python code or placeholders like '[Insert table]'. "
             "Instead, describe the data as if it were already in the report. "
             "Structure your response exactly like a completed report section."
@@ -119,23 +129,39 @@ try:
 
     # Initialize LLM components
     if model_name.startswith("gpt"):
-        llm = ChatOpenAI(
-            model_name=model_name,
-            temperature=temperature,
-            openai_api_key=openai_api_key
-        )
-        template_key = "openai"
-    else: # Assuming Google model if not OpenAI
-        llm = ChatGoogleGenerativeAI(
-            model=model_name,
-            temperature=temperature,
-            google_api_key=google_api_key
-        )
-        template_key = "google"
+        if openai_api_key:
+            llm = ChatOpenAI(
+                model_name=model_name,
+                temperature=temperature,
+                openai_api_key=openai_api_key
+            )
+        elif openrouter_api_key:
+            llm = ChatOpenAI(
+                model_name=model_name,
+                temperature=temperature,
+                openai_api_key=openrouter_api_key,  # Use OpenRouter key
+                base_url="https://openrouter.ai/api/v1"  # Set OpenRouter base URL
+            )
+        # template_key = "openai"
+    else:  # Assuming Google model if not OpenAI
+        if google_api_key:
+            llm = ChatGoogleGenerativeAI(
+                model=model_name,
+                temperature=temperature,
+                google_api_key=google_api_key
+            )
+        elif openrouter_api_key:
+            llm = ChatOpenAI(
+                model_name="google/" + model_name,
+                temperature=temperature,
+                openai_api_key=openrouter_api_key,  # Use OpenRouter key
+                base_url="https://openrouter.ai/api/v1"  # Set OpenRouter base URL
+            )
+        # template_key = "google"
 
     # Generation button and logic
     st.markdown(
-        "If all prior steps are completed, choose a prompt template and then click the button below to generate Section 3.1 of the report."
+        "If all prior steps are completed, choose a prompt template and then click the button below to generate the Pandemic Mortality Section of the report."
     )
 
     with st.expander("🧠 What is a prompt?", expanded=False):
@@ -154,45 +180,59 @@ try:
         "Poor Prompt": "poor"
     }
     
+    # Initialize or get last selected prompt from session state
+    if 'last_selected_prompt' not in st.session_state:
+        st.session_state.last_selected_prompt = "OpenAI Style"
+    
     selected_prompt_name = st.selectbox(
         "Prompt Template",
-        options=list(prompt_options.keys())
-    )
+        options=list(prompt_options.keys()),
+        index=list(prompt_options.keys()).index(st.session_state.last_selected_prompt))
     
-    # Show the selected prompt template with edit option
+    # Store current selection in session state
+    st.session_state.last_selected_prompt = selected_prompt_name
+    
+    # Store prompts in session state using template keys
     selected_template_key = prompt_options[selected_prompt_name]
+    if 'prompt_templates_edited' not in st.session_state:
+        st.session_state.prompt_templates_edited = {}
     
-    # Store prompt in session state
-    if 'prompt' not in st.session_state:
-        st.session_state.prompt = prompt_templates[selected_template_key]
-    
-    # Update prompt when template changes
-    if st.session_state.get('last_template_key') != selected_template_key:
-        st.session_state.prompt = prompt_templates[selected_template_key]
-        st.session_state.last_template_key = selected_template_key
+    # Initialize or retrieve edited prompt
+    current_prompt = st.session_state.prompt_templates_edited.get(
+        selected_template_key,
+        prompt_templates[selected_template_key]
+    )
     
     # Expandable text area for editing the prompt
     with st.expander("✏️ Edit Prompt Template", expanded=True):
         # Calculate height based on number of lines in prompt
-        line_count = len(st.session_state.prompt.split('\n'))
-        height = min(max(100, (line_count + 3) * 20), 500)  # Between 100-500px based on content
+        line_count = len(current_prompt.split('\n'))
+        height = min(max(100, (line_count + 3) * 20), 500)
         
-        prompt = st.text_area(
+        edited_prompt = st.text_area(
             "Edit the prompt template below:",
-            value=st.session_state.prompt,
+            value=current_prompt,
             height=height,
+            key=f"prompt_editor_{selected_template_key}",
             label_visibility="collapsed"
         )
         
-        if prompt != prompt_templates[selected_template_key]:
-            st.session_state.prompt = prompt
+        # Store edited version if different from default
+        if edited_prompt != prompt_templates[selected_template_key]:
+            st.session_state.prompt_templates_edited[selected_template_key] = edited_prompt
             st.success("✅ Using edited prompt template")
-        else:
-            st.info("ℹ️ Using default prompt template")
-
+        elif selected_template_key in st.session_state.prompt_templates_edited:
+            del st.session_state.prompt_templates_edited[selected_template_key]
+    
+    # Use either edited or default prompt
+    final_prompt = st.session_state.prompt_templates_edited.get(
+        selected_template_key,
+        prompt_templates[selected_template_key]
+    )
+    
     prompt_template = PromptTemplate(
         input_variables=["context", "question"],
-        template=f"{st.session_state.prompt}\n\nContext:\n{{context}}\n\nQuestion:\n{{question}}"
+        template=f"{final_prompt}\n\nContext:\n{{context}}\n\nQuestion:\n{{question}}"
     )
     
     qa_chain = RetrievalQA.from_chain_type(
@@ -204,24 +244,50 @@ try:
         input_key="question"
     )
 
-    if st.button("🚀 Generate Section 3.1"):
-        df = st.session_state.mortality_data
-        dataset_summary = df.head(20).to_markdown(index=False)
-        query = f"""
-Using the uploaded dataset, write Section 3 of the RPEC 2024 report in the {selected_prompt_name} style. 
-Place the figure and table at the appropriate location within the narrative.
+    # Save generated content to session state
+    if 'generated_content' not in st.session_state:
+        st.session_state.generated_content = None
 
-Here is the dataset sample:
-{dataset_summary}
-"""
-        result = qa_chain({"question": query})
-        section_text = result["result"]
+    # Changed button label and moved generation logic
+    button_label = "Regenerate Pandemic Mortality Section" if st.session_state.generated_content else "Generate Pandemic Mortality Section"
+    
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.button(f"🚀 {button_label}"):
+            with st.spinner("Generating content..."):
+                df = st.session_state.mortality_data
+                dataset_summary = df.head(20).to_markdown(index=False)
+                query = f"""
+                Using the uploaded dataset, write Section 3 of the RPEC 2024 report in the {selected_prompt_name} style. 
+                Place the figure and table at the appropriate location within the narrative.
 
-        # Figure rendering logic
+                Here is the dataset sample:
+                {dataset_summary}
+                """
+                result = qa_chain.invoke({"question": query})
+                st.session_state.generated_content = result["result"]
+            st.rerun()  # Refresh to show updated content
+    
+    with col2:
+        if st.session_state.generated_content:
+            st.empty()  # Keep column spacing consistent
+
+    # Display existing content if available
+    if st.session_state.generated_content:
+        st.subheader("Generated Content")
+        st.download_button(
+            label="💾 Download Content",
+            data=st.session_state.generated_content,
+            file_name="RPEC_2024_Section3.md",
+            mime="text/markdown",
+            help="Save the generated content as a Markdown file"
+        )
+        section_text = st.session_state.generated_content
+        
+        # Existing figure rendering logic
         pattern = r"(Figure\s+(\d+\.\d+)\s*[:\-–—]\s*(.*?)(\n|$))"
         match = re.search(pattern, section_text, re.IGNORECASE)
-
-        st.subheader("Generated Content")
+        
         if match:
             fig_full, fig_id, fig_desc, _ = match.groups()
             pre_fig = section_text[:match.end()]
@@ -244,6 +310,15 @@ Here is the dataset sample:
             st.markdown(post_fig)
         else:
             st.markdown(section_text)
+
+        # Keep download button visible
+        st.download_button(
+            label="💾 Save Generated Content",
+            data=st.session_state.generated_content,
+            file_name="RPEC_2024_Section3.md",
+            mime="text/markdown",
+            help="Save the generated content as a Markdown file"
+        )
 
 except Exception as e:
     st.error(f"❌ Initialization error: {e}")
