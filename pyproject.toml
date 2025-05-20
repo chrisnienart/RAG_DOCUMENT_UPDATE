@@ -45,3 +45,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest", "black"]
+
+[tool.poetry]
+package-mode = false
