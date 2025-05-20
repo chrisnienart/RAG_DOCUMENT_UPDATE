@@ -12,33 +12,16 @@ from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
-# import nltk
 import traceback
-
-# # Ensure NLTK tokenizer is available
-# try:
-#     nltk.data.find('tokenizers/punkt')
-# except LookupError:
-#     with st.spinner("📥 Downloading NLTK tokenizers (first-time setup)..."):
-#         nltk.download('punkt')
-#     try:
-#         nltk.data.find('tokenizers/punkt')
-#     except LookupError:
-#         st.error("❌ NLTK tokenizer download failed! Check:")
-#         st.markdown("- Internet connection\n- Proxy/firewall settings\n- Disk permissions")
-#         st.stop()
-
-# Load environment
-load_dotenv()
-openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
-if not openai_api_key:
-    st.error("⚠️ No OpenAI API key found! Please set your API key in the API Keys page.")
-    st.stop()
 
 # Page config
 st.set_page_config(page_title="RAG Builder - RPEC Vector Store", layout="wide")
 st.title("🛠️ RAG Builder for RPEC Reports")
 st.markdown("Build a vector store with configurable hyperparameters for downstream retrieval.")
+
+# Load environment
+load_dotenv()
+openai_api_key = st.session_state.get("openai_api_key", os.getenv("OPENAI_API_KEY"))
 
 # --- File Uploader ---
 uploaded_files = st.file_uploader("Upload source PDFs (e.g., RPEC 2022/2023 Reports)", type="pdf", accept_multiple_files=True)
@@ -132,6 +115,12 @@ if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_
         st.warning("Please upload at least one PDF document.")
     else:
         try:
+            # Check for OpenAI API key when using OpenAI embeddings
+            if embedding_source == "OpenAI" and not openai_api_key:
+                st.error("❌ Error: OpenAI API key is required for OpenAI embeddings. Please set your API key before proceeding. \
+                            Otherwise use Hugging Face (local) embeddings.")
+                st.stop()
+            
             # Text splitter logic
             if splitter_type == "Sentence-aware (NLTK)":
                 text_splitter = NLTKTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
@@ -214,6 +203,16 @@ if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_
                     del st.session_state.qdrant_client
             except Exception as e:
                 st.warning(f"Client cleanup warning: {str(e)}")
+
+            # Remove any existing lock file
+            lock_file_path = os.path.join(os.path.abspath("vector_store"), ".lock")
+            if os.path.exists(lock_file_path):
+                try:
+                    os.remove(lock_file_path)
+                    st.warning("Removed existing lock file to allow new vector store creation.")
+                except Exception as e:
+                    st.error(f"Failed to remove lock file: {e}")
+                    st.stop()  # Stop to prevent potential conflicts
 
             # Always create fresh client instance for build operations
             st.session_state.qdrant_client = QdrantClient(

@@ -39,11 +39,11 @@ if 'mortality_data' not in st.session_state:
     st.stop()
 
 # Model config check
-if st.session_state.get('model_name').startswith("gpt") and not(openai_api_key):
-    st.error("⚠️ OpenAI API key required for OpenAI models!")
+if st.session_state.get('model_name').startswith("gpt") and not(openai_api_key or openrouter_api_key):
+    st.error("⚠️ Either OpenAI or OpenRouter API key required for GPT models!")
     st.stop()   
 
-if st.session_state.get('model_name').startswith("gemini") and not(google_api_key):
+if st.session_state.get('model_name').startswith("gemini") and not(google_api_key or openrouter_api_key):
     st.error("⚠️ Google API key required for Gemini models!")
     st.stop()   
 
@@ -129,19 +129,35 @@ try:
 
     # Initialize LLM components
     if model_name.startswith("gpt"):
-        llm = ChatOpenAI(
-            model_name=model_name,
-            temperature=temperature,
-            openai_api_key=openai_api_key
-        )
-        template_key = "openai"
-    else: # Assuming Google model if not OpenAI
-        llm = ChatGoogleGenerativeAI(
-            model=model_name,
-            temperature=temperature,
-            google_api_key=google_api_key
-        )
-        template_key = "google"
+        if openai_api_key:
+            llm = ChatOpenAI(
+                model_name=model_name,
+                temperature=temperature,
+                openai_api_key=openai_api_key
+            )
+        elif openrouter_api_key:
+            llm = ChatOpenAI(
+                model_name=model_name,
+                temperature=temperature,
+                openai_api_key=openrouter_api_key,  # Use OpenRouter key
+                base_url="https://openrouter.ai/api/v1"  # Set OpenRouter base URL
+            )
+        # template_key = "openai"
+    else:  # Assuming Google model if not OpenAI
+        if google_api_key:
+            llm = ChatGoogleGenerativeAI(
+                model=model_name,
+                temperature=temperature,
+                google_api_key=google_api_key
+            )
+        elif openrouter_api_key:
+            llm = ChatOpenAI(
+                model_name="google/" + model_name,
+                temperature=temperature,
+                openai_api_key=openrouter_api_key,  # Use OpenRouter key
+                base_url="https://openrouter.ai/api/v1"  # Set OpenRouter base URL
+            )
+        # template_key = "google"
 
     # Generation button and logic
     st.markdown(
@@ -238,17 +254,18 @@ try:
     col1, col2 = st.columns([1, 1])
     with col1:
         if st.button(f"🚀 {button_label}"):
-            df = st.session_state.mortality_data
-            dataset_summary = df.head(20).to_markdown(index=False)
-            query = f"""
-Using the uploaded dataset, write Section 3 of the RPEC 2024 report in the {selected_prompt_name} style. 
-Place the figure and table at the appropriate location within the narrative.
+            with st.spinner("Generating content..."):
+                df = st.session_state.mortality_data
+                dataset_summary = df.head(20).to_markdown(index=False)
+                query = f"""
+                Using the uploaded dataset, write Section 3 of the RPEC 2024 report in the {selected_prompt_name} style. 
+                Place the figure and table at the appropriate location within the narrative.
 
-Here is the dataset sample:
-{dataset_summary}
-"""
-            result = qa_chain.invoke({"question": query})
-            st.session_state.generated_content = result["result"]
+                Here is the dataset sample:
+                {dataset_summary}
+                """
+                result = qa_chain.invoke({"question": query})
+                st.session_state.generated_content = result["result"]
             st.rerun()  # Refresh to show updated content
     
     with col2:
