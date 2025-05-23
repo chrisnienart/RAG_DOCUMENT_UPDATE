@@ -13,6 +13,9 @@ from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
 import traceback
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils import initialize_nltk
 
 # Page config
 st.set_page_config(page_title="RAG Builder - RPEC Vector Store", layout="wide")
@@ -123,6 +126,10 @@ if st.button("🚀 Rebuild Vector Store" if 'vector_store_exists' in st.session_
             
             # Text splitter logic
             if splitter_type == "Sentence-aware (NLTK)":
+                # Initialize NLTK data before using NLTKTextSplitter
+                if not initialize_nltk():
+                    st.error("❌ Failed to initialize NLTK data. Please try using 'Character-based (Recursive)' splitter instead.")
+                    st.stop()
                 text_splitter = NLTKTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
             else:
                 text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
