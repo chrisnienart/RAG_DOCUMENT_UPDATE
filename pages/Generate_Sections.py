@@ -6,8 +6,9 @@ from qdrant_client import QdrantClient
 from langchain_qdrant import QdrantVectorStore
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.chains import RetrievalQA
-from langchain.prompts import PromptTemplate
+from langchain_classic.chains import create_retrieval_chain
+from langchain_classic.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.prompts import ChatPromptTemplate
 import traceback
 import matplotlib.pyplot as plt
 import re
@@ -230,19 +231,17 @@ try:
         prompt_templates[selected_template_key]
     )
     
-    prompt_template = PromptTemplate(
-        input_variables=["context", "question"],
-        template=f"{final_prompt}\n\nContext:\n{{context}}\n\nQuestion:\n{{question}}"
-    )
+    # Create prompt template for the new API
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", final_prompt),
+        ("human", "Context:\n{context}\n\nQuestion:\n{input}")
+    ])
     
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=False,
-        chain_type_kwargs={"prompt": prompt_template},
-        input_key="question"
-    )
+    # Create the document chain
+    document_chain = create_stuff_documents_chain(llm, prompt)
+    
+    # Create the retrieval chain
+    qa_chain = create_retrieval_chain(retriever, document_chain)
 
     # Save generated content to session state
     if 'generated_content' not in st.session_state:
@@ -264,8 +263,8 @@ try:
                 Here is the dataset sample:
                 {dataset_summary}
                 """
-                result = qa_chain.invoke({"question": query})
-                st.session_state.generated_content = result["result"]
+                result = qa_chain.invoke({"input": query})
+                st.session_state.generated_content = result["answer"]
             st.rerun()  # Refresh to show updated content
     
     with col2:

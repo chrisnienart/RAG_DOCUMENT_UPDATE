@@ -6,7 +6,7 @@ import re
 import json
 import pandas as pd
 from langchain_community.document_loaders import PyMuPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter, NLTKTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, NLTKTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 from langchain_qdrant import QdrantVectorStore
